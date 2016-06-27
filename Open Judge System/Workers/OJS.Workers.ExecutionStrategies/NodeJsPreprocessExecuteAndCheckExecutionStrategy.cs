@@ -17,7 +17,7 @@
         private const string PostevaluationPlaceholder = "#postevaluationCode#";
         private const string EvaluationPlaceholder = "#evaluationCode#";
 
-        public NodeJsPreprocessExecuteAndCheckExecutionStrategy(string nodeJsExecutablePath)
+        public NodeJsPreprocessExecuteAndCheckExecutionStrategy(string nodeJsExecutablePath, string sandboxModulePath)
         {
             if (!File.Exists(nodeJsExecutablePath))
             {
@@ -25,13 +25,23 @@
                     $"NodeJS not found in: {nodeJsExecutablePath}", nameof(nodeJsExecutablePath));
             }
 
+            if (!File.Exists(sandboxModulePath) && !Directory.Exists(sandboxModulePath))
+            {
+                throw new ArgumentException(
+                    $"Sandbox lib not found in: {sandboxModulePath}", nameof(sandboxModulePath));
+            }
+
             this.NodeJsExecutablePath = nodeJsExecutablePath;
+            this.SandboxModulePath = this.ProcessModulePath(sandboxModulePath);
         }
 
         protected string NodeJsExecutablePath { get; private set; }
 
+        protected string SandboxModulePath { get; private set; }
+
         protected virtual string JsCodeRequiredModules => @"
-var EOL = require('os').EOL";
+var EOL = require('os').EOL;
+var Sandbox = require(""" + this.SandboxModulePath + @""");";
 
         protected virtual string JsCodePreevaulationCode => @"
 var content = ''";
@@ -39,99 +49,22 @@ var content = ''";
         protected virtual string JsCodePostevaulationCode => string.Empty;
 
         protected virtual string JsCodeEvaluation => @"
-    var inputData = content.trim().split(EOL);
-    var result = code.run(inputData);
-    if (result !== undefined) {
-        console.log(result);
-    }";
+var inputData = content.trim().split(EOL);
+var sandbox = new Sandbox();
+code += `; 
+solve(inputdata);
+`;
 
-        protected virtual string JsCodeTemplate => RequiredModules + @";
+sandbox.run(code, function(output) {    
+    console.log(output);    
+});";
 
-DataView = undefined;
-DTRACE_NET_SERVER_CONNECTION = undefined;
-// DTRACE_NET_STREAM_END = undefined;
-DTRACE_NET_SOCKET_READ = undefined;
-DTRACE_NET_SOCKET_WRITE = undefined;
-DTRACE_HTTP_SERVER_REQUEST = undefined;
-DTRACE_HTTP_SERVER_RESPONSE = undefined;
-DTRACE_HTTP_CLIENT_REQUEST = undefined;
-DTRACE_HTTP_CLIENT_RESPONSE = undefined;
-COUNTER_NET_SERVER_CONNECTION = undefined;
-COUNTER_NET_SERVER_CONNECTION_CLOSE = undefined;
-COUNTER_HTTP_SERVER_REQUEST = undefined;
-COUNTER_HTTP_SERVER_RESPONSE = undefined;
-COUNTER_HTTP_CLIENT_REQUEST = undefined;
-COUNTER_HTTP_CLIENT_RESPONSE = undefined;
-process.argv = undefined;
-process.versions = undefined;
-process.env = { NODE_DEBUG: false };
-process.addListener = undefined;
-process.EventEmitter = undefined;
-process.mainModule = undefined;
-process.removeListener = undefined;
-process.config = undefined;
-// process.on = undefined;
-process.openStdin = undefined;
-process.chdir = undefined;
-process.cwd = undefined;
-process.exit = undefined;
-process.umask = undefined;
-GLOBAL = undefined;
-root = undefined;
-setTimeout = undefined;
-setInterval = undefined;
-clearTimeout = undefined;
-clearInterval = undefined;
-setImmediate = undefined;
-clearImmediate = undefined;
-module = undefined;
-require = undefined;
-msg = undefined;
+        protected virtual string JsCodeTemplate => RequiredModules + @"
 
-delete DataView;
-delete DTRACE_NET_SERVER_CONNECTION;
-// delete DTRACE_NET_STREAM_END;
-delete DTRACE_NET_SOCKET_READ;
-delete DTRACE_NET_SOCKET_WRITE;
-delete DTRACE_HTTP_SERVER_REQUEST;
-delete DTRACE_HTTP_SERVER_RESPONSE;
-delete DTRACE_HTTP_CLIENT_REQUEST;
-delete DTRACE_HTTP_CLIENT_RESPONSE;
-delete COUNTER_NET_SERVER_CONNECTION;
-delete COUNTER_NET_SERVER_CONNECTION_CLOSE;
-delete COUNTER_HTTP_SERVER_REQUEST;
-delete COUNTER_HTTP_SERVER_RESPONSE;
-delete COUNTER_HTTP_CLIENT_REQUEST;
-delete COUNTER_HTTP_CLIENT_RESPONSE;
-delete process.argv;
-delete process.exit;
-delete process.versions;
-delete GLOBAL;
-delete root;
-delete setTimeout;
-delete setInterval;
-delete clearTimeout;
-delete clearInterval;
-delete setImmediate;
-delete clearImmediate;
-delete module;
-delete require;
-delete msg;
-
-process.exit = function () {};
-
+var code = `var solve = " + UserInputPlaceholder + @"`;
 " + PreevaluationPlaceholder + @"
-process.stdin.resume();
-process.stdin.on('data', function(buf) { content += buf.toString(); });
-process.stdin.on('end', function() {
-    " + EvaluationPlaceholder + @"
-});
-
-" + PostevaluationPlaceholder + @"
-
-var code = {
-    run: " + UserInputPlaceholder + @"
-};";
+" + EvaluationPlaceholder + @";
+" + PostevaluationPlaceholder;
 
         public override ExecutionResult Execute(ExecutionContext executionContext)
         {
@@ -145,32 +78,39 @@ var code = {
             var codeToExecute = this.PreprocessJsSubmission(this.JsCodeTemplate, executionContext.Code.Trim(';'));
 
             // Save the preprocessed submission which is ready for execution
-            var codeSavePath = FileHelpers.SaveStringToTempFile(codeToExecute);
 
             // Process the submission and check each test
             IExecutor executor = new RestrictedProcessExecutor();
             IChecker checker = Checker.CreateChecker(executionContext.CheckerAssemblyName, executionContext.CheckerTypeName, executionContext.CheckerParameter);
 
-            result.TestResults = this.ProcessTests(executionContext, executor, checker, codeSavePath);
+            result.TestResults = this.ProcessTests(executionContext, executor, checker, codeToExecute);
 
             // Clean up
-            File.Delete(codeSavePath);
+            //File.Delete(codeSavePath);
 
             return result;
         }
 
-        protected virtual List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker, string codeSavePath)
+        protected virtual List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker, string codeToExecute)
         {
             var testResults = new List<TestResult>();
 
             foreach (var test in executionContext.Tests)
             {
-                var processExecutionResult = executor.Execute(this.NodeJsExecutablePath, test.Input, executionContext.TimeLimit, executionContext.MemoryLimit, new[] { codeSavePath });
+                codeToExecute = codeToExecute.Replace("var content = ''", "var content = `" + test.Input + "`");
+                var codeSavePath = FileHelpers.SaveStringToTempFile(codeToExecute);
+
+                var processExecutionResult = executor.Execute(this.NodeJsExecutablePath, string.Empty, executionContext.TimeLimit, executionContext.MemoryLimit, new[] { codeSavePath });
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, processExecutionResult.ReceivedOutput);
                 testResults.Add(testResult);
             }
 
             return testResults;
+        }
+
+        protected string ProcessModulePath(string path)
+        {
+            return path.Replace('\\', '/');
         }
 
         private string PreprocessJsSubmission(string template, string code)
@@ -181,6 +121,8 @@ var code = {
                 .Replace(EvaluationPlaceholder, this.JsCodeEvaluation)
                 .Replace(PostevaluationPlaceholder, this.JsCodePostevaulationCode)
                 .Replace(UserInputPlaceholder, code);
+
+            //throw new Exception(processedCode);
 
             return processedCode;
         }

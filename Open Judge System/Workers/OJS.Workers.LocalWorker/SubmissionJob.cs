@@ -239,17 +239,19 @@
                     executionStrategy = new CSharpTestRunnerExecutionStrategy(GetCompilerPath);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
-                    executionStrategy = new NodeJsPreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsExecutablePath);
+                    executionStrategy = new NodeJsPreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsExecutablePath, Settings.SandboxModulePath);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha:
                     executionStrategy = new NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy(
                         Settings.NodeJsExecutablePath,
+                        Settings.SandboxModulePath,
                         Settings.MochaModulePath,
                         Settings.ChaiModulePath);
                     break;
                 case ExecutionStrategyType.IoJsPreprocessExecuteAndRunJsDomUnitTests:
                     executionStrategy = new IoJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy(
                         Settings.IoJsExecutablePath,
+                        Settings.SandboxModulePath,
                         Settings.MochaModulePath,
                         Settings.ChaiModulePath,
                         Settings.JsDomModulePath,

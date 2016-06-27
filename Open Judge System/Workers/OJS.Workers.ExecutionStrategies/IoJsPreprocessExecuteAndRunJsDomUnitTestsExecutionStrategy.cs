@@ -14,6 +14,7 @@
 
         public IoJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy(
             string iojsExecutablePath,
+            string sandboxModulePath,
             string mochaModulePath,
             string chaiModulePath,
             string jsdomModulePath,
@@ -22,7 +23,7 @@
             string sinonModulePath,
             string sinonChaiModulePath,
             string underscoreModulePath) // TODO: make this modular by getting requires from test
-            : base(iojsExecutablePath, mochaModulePath, chaiModulePath)
+            : base(iojsExecutablePath, sandboxModulePath, mochaModulePath, chaiModulePath)
         {
             if (!Directory.Exists(jsdomModulePath))
             {

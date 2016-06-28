@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.IO;
 
     using OJS.Common.Extensions;
@@ -12,10 +13,14 @@
     public class NodeJsPreprocessExecuteAndCheckExecutionStrategy : ExecutionStrategy
     {
         private const string UserInputPlaceholder = "#userInput#";
+
         private const string RequiredModules = "#requiredModule#";
         private const string PreevaluationPlaceholder = "#preevaluationCode#";
         private const string PostevaluationPlaceholder = "#postevaluationCode#";
         private const string EvaluationPlaceholder = "#evaluationCode#";
+
+        private const string PathToCodePlaceholder = "#pathToCode#";
+        private const string TestArgsPlaceholder = "#testArguments";
 
         public NodeJsPreprocessExecuteAndCheckExecutionStrategy(string nodeJsExecutablePath, string sandboxModulePath)
         {
@@ -66,6 +71,31 @@ var code = `var solve = " + UserInputPlaceholder + @"`;
 " + EvaluationPlaceholder + @";
 " + PostevaluationPlaceholder;
 
+        protected virtual string JsSandboxWrapper => @"
+var EOL = require('os').EOL;
+var Sandbox = require(""" + this.SandboxModulePath + @""");
+var pathToCode = """ + PathToCodePlaceholder + @""";
+var s = new Sandbox();
+s.run(pathToCode, function(output){
+    var lines = [...output.console];
+
+    if(output && output.result !== null) {
+        lines.push(output.result);
+    }
+
+    console.log(lines.join(EOL).trim());
+});
+";
+
+        //        protected virtual string JsSolutionTemplate => @"
+        //var solutionFunc = " + UserInputPlaceholder + @"
+        //var args = [" + TestArgsPlaceholder + @"];
+        //solutionFunc(args);
+        //";
+        protected virtual string JsSolutionTemplate => @"
+(" + UserInputPlaceholder + @"
+)([" + TestArgsPlaceholder + "]);";
+
         public override ExecutionResult Execute(ExecutionContext executionContext)
         {
             var result = new ExecutionResult();
@@ -75,42 +105,68 @@ var code = `var solve = " + UserInputPlaceholder + @"`;
             result.IsCompiledSuccessfully = true;
 
             // Preprocess the user submission
-            var codeToExecute = this.PreprocessJsSubmission(this.JsCodeTemplate, executionContext.Code.Trim(';'));
+            //var codeToExecute = this.PreprocessJsSubmission(this.JsCodeTemplate, executionContext.Code.Trim(';'));
 
             // Save the preprocessed submission which is ready for execution
 
             // Process the submission and check each test
-            IExecutor executor = new RestrictedProcessExecutor();
+            //IExecutor executor = new RestrictedProcessExecutor();
+            IExecutor executor = new StandardProcessExecutor();
             IChecker checker = Checker.CreateChecker(executionContext.CheckerAssemblyName, executionContext.CheckerTypeName, executionContext.CheckerParameter);
 
-            result.TestResults = this.ProcessTests(executionContext, executor, checker, codeToExecute);
-
-            // Clean up
-            //File.Delete(codeSavePath);
+            result.TestResults = this.ProcessTests(executionContext, executor, checker);
 
             return result;
         }
 
-        protected virtual List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker, string codeToExecute)
+        protected virtual List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker)
         {
             var testResults = new List<TestResult>();
 
             foreach (var test in executionContext.Tests)
             {
-                codeToExecute = codeToExecute.Replace("var content = ''", "var content = `" + test.Input + "`");
-                var codeSavePath = FileHelpers.SaveStringToTempFile(codeToExecute);
+                var solutionCodeToExecute = this.PreprocessJsSolution(this.JsSolutionTemplate, executionContext.Code.Trim(), test.Input);
+                var pathToSolutionFile = FileHelpers.SaveStringToTempFile(solutionCodeToExecute);
+                string wrapperCode = this.ProcessSandboxWrapper(pathToSolutionFile);
+                var pathToWrapperCode = FileHelpers.SaveStringToTempFile(wrapperCode);
 
-                var processExecutionResult = executor.Execute(this.NodeJsExecutablePath, string.Empty, executionContext.TimeLimit, executionContext.MemoryLimit, new[] { codeSavePath });
+                var processExecutionResult = executor.Execute(this.NodeJsExecutablePath, string.Empty, executionContext.TimeLimit, executionContext.MemoryLimit, new[] { pathToWrapperCode });
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, processExecutionResult.ReceivedOutput);
                 testResults.Add(testResult);
+
+                // Clean up the files
+                File.Delete(pathToSolutionFile);
+                File.Delete(pathToWrapperCode);
             }
 
             return testResults;
         }
 
+
+        protected virtual List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker, string codeSavePath)
+        {
+            return null;
+        }
+
         protected string ProcessModulePath(string path)
         {
             return path.Replace('\\', '/');
+        }
+
+        private string PreprocessJsSolution(string template, string code, string input)
+        {
+            var argsString =
+                    string.Join(", ", input.Trim()
+                                           .Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                                           .Select(arg => string.Format("\"{0}\"", arg)));
+            return template
+                    .Replace(TestArgsPlaceholder, argsString)
+                    .Replace(UserInputPlaceholder, code);
+        }
+
+        private string ProcessSandboxWrapper(string pathToSolutionFile)
+        {
+            return this.JsSandboxWrapper.Replace(PathToCodePlaceholder, this.ProcessModulePath(pathToSolutionFile));
         }
 
         private string PreprocessJsSubmission(string template, string code)
@@ -121,8 +177,6 @@ var code = `var solve = " + UserInputPlaceholder + @"`;
                 .Replace(EvaluationPlaceholder, this.JsCodeEvaluation)
                 .Replace(PostevaluationPlaceholder, this.JsCodePostevaulationCode)
                 .Replace(UserInputPlaceholder, code);
-
-            //throw new Exception(processedCode);
 
             return processedCode;
         }

@@ -23,7 +23,7 @@
             string sinonModulePath,
             string sinonChaiModulePath,
             string underscoreModulePath) // TODO: make this modular by getting requires from test
-            : base(iojsExecutablePath, sandboxModulePath, mochaModulePath, chaiModulePath)
+            : base(iojsExecutablePath, mochaModulePath, chaiModulePath)
         {
             if (!Directory.Exists(jsdomModulePath))
             {

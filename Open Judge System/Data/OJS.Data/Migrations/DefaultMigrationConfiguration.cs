@@ -152,6 +152,17 @@
                                               },
                                           new SubmissionType
                                               {
+                                                  Name = "JavaScript code (ES 2015)",
+                                                  CompilerType = CompilerType.None,
+                                                  AdditionalCompilerArguments = string.Empty,
+                                                  ExecutionStrategyType =
+                                                      ExecutionStrategyType.NodeJsES6PreprocessExecuteAndCheck,
+                                                  IsSelectedByDefault = false,
+                                                  AllowedFileExtensions = null,
+                                                  AllowBinaryFilesUpload = false,
+                                              },
+                                          new SubmissionType
+                                              {
                                                   Name = "JavaScript code (NodeJS)",
                                                   CompilerType = CompilerType.None,
                                                   AdditionalCompilerArguments = string.Empty,

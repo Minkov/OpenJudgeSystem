@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.IO;
 
     using OJS.Common.Extensions;
@@ -13,16 +12,12 @@
     public class NodeJsPreprocessExecuteAndCheckExecutionStrategy : ExecutionStrategy
     {
         private const string UserInputPlaceholder = "#userInput#";
-
         private const string RequiredModules = "#requiredModule#";
         private const string PreevaluationPlaceholder = "#preevaluationCode#";
         private const string PostevaluationPlaceholder = "#postevaluationCode#";
         private const string EvaluationPlaceholder = "#evaluationCode#";
 
-        private const string PathToCodePlaceholder = "#pathToCode#";
-        private const string TestArgsPlaceholder = "#testArguments";
-
-        public NodeJsPreprocessExecuteAndCheckExecutionStrategy(string nodeJsExecutablePath, string sandboxModulePath)
+        public NodeJsPreprocessExecuteAndCheckExecutionStrategy(string nodeJsExecutablePath)
         {
             if (!File.Exists(nodeJsExecutablePath))
             {
@@ -30,23 +25,13 @@
                     $"NodeJS not found in: {nodeJsExecutablePath}", nameof(nodeJsExecutablePath));
             }
 
-            if (!File.Exists(sandboxModulePath) && !Directory.Exists(sandboxModulePath))
-            {
-                throw new ArgumentException(
-                    $"Sandbox lib not found in: {sandboxModulePath}", nameof(sandboxModulePath));
-            }
-
             this.NodeJsExecutablePath = nodeJsExecutablePath;
-            this.SandboxModulePath = this.ProcessModulePath(sandboxModulePath);
         }
 
         protected string NodeJsExecutablePath { get; private set; }
 
-        protected string SandboxModulePath { get; private set; }
-
         protected virtual string JsCodeRequiredModules => @"
-var EOL = require('os').EOL;
-var Sandbox = require(""" + this.SandboxModulePath + @""");";
+var EOL = require('os').EOL";
 
         protected virtual string JsCodePreevaulationCode => @"
 var content = ''";
@@ -54,47 +39,99 @@ var content = ''";
         protected virtual string JsCodePostevaulationCode => string.Empty;
 
         protected virtual string JsCodeEvaluation => @"
-var inputData = content.trim().split(EOL);
-var sandbox = new Sandbox();
-code += `; 
-solve(inputdata);
-`;
+    var inputData = content.trim().split(EOL);
+    var result = code.run(inputData);
+    if (result !== undefined) {
+        console.log(result);
+    }";
 
-sandbox.run(code, function(output) {    
-    console.log(output);    
-});";
+        protected virtual string JsCodeTemplate => RequiredModules + @";
 
-        protected virtual string JsCodeTemplate => RequiredModules + @"
+DataView = undefined;
+DTRACE_NET_SERVER_CONNECTION = undefined;
+// DTRACE_NET_STREAM_END = undefined;
+DTRACE_NET_SOCKET_READ = undefined;
+DTRACE_NET_SOCKET_WRITE = undefined;
+DTRACE_HTTP_SERVER_REQUEST = undefined;
+DTRACE_HTTP_SERVER_RESPONSE = undefined;
+DTRACE_HTTP_CLIENT_REQUEST = undefined;
+DTRACE_HTTP_CLIENT_RESPONSE = undefined;
+COUNTER_NET_SERVER_CONNECTION = undefined;
+COUNTER_NET_SERVER_CONNECTION_CLOSE = undefined;
+COUNTER_HTTP_SERVER_REQUEST = undefined;
+COUNTER_HTTP_SERVER_RESPONSE = undefined;
+COUNTER_HTTP_CLIENT_REQUEST = undefined;
+COUNTER_HTTP_CLIENT_RESPONSE = undefined;
+process.argv = undefined;
+process.versions = undefined;
+process.env = { NODE_DEBUG: false };
+process.addListener = undefined;
+process.EventEmitter = undefined;
+process.mainModule = undefined;
+process.removeListener = undefined;
+process.config = undefined;
+// process.on = undefined;
+process.openStdin = undefined;
+process.chdir = undefined;
+process.cwd = undefined;
+process.exit = undefined;
+process.umask = undefined;
+GLOBAL = undefined;
+root = undefined;
+setTimeout = undefined;
+setInterval = undefined;
+clearTimeout = undefined;
+clearInterval = undefined;
+setImmediate = undefined;
+clearImmediate = undefined;
+module = undefined;
+require = undefined;
+msg = undefined;
 
-var code = `var solve = " + UserInputPlaceholder + @"`;
+delete DataView;
+delete DTRACE_NET_SERVER_CONNECTION;
+// delete DTRACE_NET_STREAM_END;
+delete DTRACE_NET_SOCKET_READ;
+delete DTRACE_NET_SOCKET_WRITE;
+delete DTRACE_HTTP_SERVER_REQUEST;
+delete DTRACE_HTTP_SERVER_RESPONSE;
+delete DTRACE_HTTP_CLIENT_REQUEST;
+delete DTRACE_HTTP_CLIENT_RESPONSE;
+delete COUNTER_NET_SERVER_CONNECTION;
+delete COUNTER_NET_SERVER_CONNECTION_CLOSE;
+delete COUNTER_HTTP_SERVER_REQUEST;
+delete COUNTER_HTTP_SERVER_RESPONSE;
+delete COUNTER_HTTP_CLIENT_REQUEST;
+delete COUNTER_HTTP_CLIENT_RESPONSE;
+delete process.argv;
+delete process.exit;
+delete process.versions;
+delete GLOBAL;
+delete root;
+delete setTimeout;
+delete setInterval;
+delete clearTimeout;
+delete clearInterval;
+delete setImmediate;
+delete clearImmediate;
+delete module;
+delete require;
+delete msg;
+
+process.exit = function () {};
+
 " + PreevaluationPlaceholder + @"
-" + EvaluationPlaceholder + @";
-" + PostevaluationPlaceholder;
-
-        protected virtual string JsSandboxWrapper => @"
-var EOL = require('os').EOL;
-var Sandbox = require(""" + this.SandboxModulePath + @""");
-var pathToCode = """ + PathToCodePlaceholder + @""";
-var s = new Sandbox();
-s.run(pathToCode, function(output){
-    var lines = [...output.console];
-
-    if(output && output.result !== null) {
-        lines.push(output.result);
-    }
-
-    console.log(lines.join(EOL).trim());
+process.stdin.resume();
+process.stdin.on('data', function(buf) { content += buf.toString(); });
+process.stdin.on('end', function() {
+    " + EvaluationPlaceholder + @"
 });
-";
 
-        //        protected virtual string JsSolutionTemplate => @"
-        //var solutionFunc = " + UserInputPlaceholder + @"
-        //var args = [" + TestArgsPlaceholder + @"];
-        //solutionFunc(args);
-        //";
-        protected virtual string JsSolutionTemplate => @"
-(" + UserInputPlaceholder + @"
-)([" + TestArgsPlaceholder + "]);";
+" + PostevaluationPlaceholder + @"
+
+var code = {
+    run: " + UserInputPlaceholder + @"
+};";
 
         public override ExecutionResult Execute(ExecutionContext executionContext)
         {
@@ -105,68 +142,35 @@ s.run(pathToCode, function(output){
             result.IsCompiledSuccessfully = true;
 
             // Preprocess the user submission
-            //var codeToExecute = this.PreprocessJsSubmission(this.JsCodeTemplate, executionContext.Code.Trim(';'));
+            var codeToExecute = this.PreprocessJsSubmission(this.JsCodeTemplate, executionContext.Code.Trim(';'));
 
             // Save the preprocessed submission which is ready for execution
+            var codeSavePath = FileHelpers.SaveStringToTempFile(codeToExecute);
 
             // Process the submission and check each test
-            //IExecutor executor = new RestrictedProcessExecutor();
-            IExecutor executor = new StandardProcessExecutor();
+            IExecutor executor = new RestrictedProcessExecutor();
             IChecker checker = Checker.CreateChecker(executionContext.CheckerAssemblyName, executionContext.CheckerTypeName, executionContext.CheckerParameter);
 
-            result.TestResults = this.ProcessTests(executionContext, executor, checker);
+            result.TestResults = this.ProcessTests(executionContext, executor, checker, codeSavePath);
+
+            // Clean up
+            File.Delete(codeSavePath);
 
             return result;
         }
 
-        protected virtual List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker)
+        protected virtual List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker, string codeSavePath)
         {
             var testResults = new List<TestResult>();
 
             foreach (var test in executionContext.Tests)
             {
-                var solutionCodeToExecute = this.PreprocessJsSolution(this.JsSolutionTemplate, executionContext.Code.Trim(), test.Input);
-                var pathToSolutionFile = FileHelpers.SaveStringToTempFile(solutionCodeToExecute);
-                string wrapperCode = this.ProcessSandboxWrapper(pathToSolutionFile);
-                var pathToWrapperCode = FileHelpers.SaveStringToTempFile(wrapperCode);
-
-                var processExecutionResult = executor.Execute(this.NodeJsExecutablePath, string.Empty, executionContext.TimeLimit, executionContext.MemoryLimit, new[] { pathToWrapperCode });
+                var processExecutionResult = executor.Execute(this.NodeJsExecutablePath, test.Input, executionContext.TimeLimit, executionContext.MemoryLimit, new[] { codeSavePath });
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, processExecutionResult.ReceivedOutput);
                 testResults.Add(testResult);
-
-                // Clean up the files
-                File.Delete(pathToSolutionFile);
-                File.Delete(pathToWrapperCode);
             }
 
             return testResults;
-        }
-
-
-        protected virtual List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker, string codeSavePath)
-        {
-            return null;
-        }
-
-        protected string ProcessModulePath(string path)
-        {
-            return path.Replace('\\', '/');
-        }
-
-        private string PreprocessJsSolution(string template, string code, string input)
-        {
-            var argsString =
-                    string.Join(", ", input.Trim()
-                                           .Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
-                                           .Select(arg => string.Format("\"{0}\"", arg)));
-            return template
-                    .Replace(TestArgsPlaceholder, argsString)
-                    .Replace(UserInputPlaceholder, code);
-        }
-
-        private string ProcessSandboxWrapper(string pathToSolutionFile)
-        {
-            return this.JsSandboxWrapper.Replace(PathToCodePlaceholder, this.ProcessModulePath(pathToSolutionFile));
         }
 
         private string PreprocessJsSubmission(string template, string code)

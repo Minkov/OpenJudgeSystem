@@ -5,6 +5,7 @@
         DoNothing = 0,
         CompileExecuteAndCheck = 1,
         CSharpTestRunner = 9,
+        NodeJsES6PreprocessExecuteAndCheck = 100,
         NodeJsPreprocessExecuteAndCheck = 2,
         NodeJsPreprocessExecuteAndRunUnitTestsWithMocha = 7,
         IoJsPreprocessExecuteAndRunJsDomUnitTests = 8,

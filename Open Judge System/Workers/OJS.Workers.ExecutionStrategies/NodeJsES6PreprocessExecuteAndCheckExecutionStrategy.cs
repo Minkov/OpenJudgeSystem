@@ -14,11 +14,6 @@
     {
         private const string UserInputPlaceholder = "#userInput#";
 
-        private const string RequiredModules = "#requiredModule#";
-        private const string PreevaluationPlaceholder = "#preevaluationCode#";
-        private const string PostevaluationPlaceholder = "#postevaluationCode#";
-        private const string EvaluationPlaceholder = "#evaluationCode#";
-
         private const string PathToCodePlaceholder = "#pathToCode#";
         private const string TestArgsPlaceholder = "#testArguments";
 
@@ -30,9 +25,6 @@
                     $"NodeJS not found in: {nodeJsExecutablePath}", nameof(nodeJsExecutablePath));
             }
 
-            //if (!File.Exists(sandboxModulePath) && !Directory.Exists(sandboxModulePath))
-            //{
-            //    throw new ArgumentException(
             //        $"Sandbox lib not found in: {sandboxModulePath}", nameof(sandboxModulePath));
             //}
 
@@ -43,33 +35,6 @@
         protected string NodeJsExecutablePath { get; private set; }
 
         protected string SandboxModulePath { get; private set; }
-
-        protected virtual string JsCodeRequiredModules => @"
-var EOL = require('os').EOL;
-var Sandbox = require(""" + this.ProcessModulePath(this.SandboxModulePath) + @""");";
-
-        protected virtual string JsCodePreevaulationCode => @"
-var content = ''";
-
-        protected virtual string JsCodePostevaulationCode => string.Empty;
-
-        protected virtual string JsCodeEvaluation => @"
-var inputData = content.trim().split(EOL);
-var sandbox = new Sandbox();
-code += `; 
-solve(inputdata);
-`;
-
-sandbox.run(code, function(output) {    
-    console.log(output);
-});";
-
-        protected virtual string JsCodeTemplate => RequiredModules + @"
-
-var code = `var solve = " + UserInputPlaceholder + @"`;
-" + PreevaluationPlaceholder + @"
-" + EvaluationPlaceholder + @";
-" + PostevaluationPlaceholder;
 
         protected virtual string JsSandboxWrapper => @"
 var EOL = require('os').EOL;
@@ -108,14 +73,9 @@ s.run(pathToCode, function(output){
             // execution strategy there is no compilation
             result.IsCompiledSuccessfully = true;
 
-            // Preprocess the user submission
-            //var codeToExecute = this.PreprocessJsSubmission(this.JsCodeTemplate, executionContext.Code.Trim(';'));
-
-            // Save the preprocessed submission which is ready for execution
-
             // Process the submission and check each test
-            //IExecutor executor = new RestrictedProcessExecutor();
             IExecutor executor = new StandardProcessExecutor();
+
             IChecker checker = Checker.CreateChecker(executionContext.CheckerAssemblyName, executionContext.CheckerTypeName, executionContext.CheckerParameter);
 
             result.TestResults = this.ProcessTests(executionContext, executor, checker);
@@ -139,8 +99,8 @@ s.run(pathToCode, function(output){
                 testResults.Add(testResult);
 
                 // Clean up the files
-                //File.Delete(pathToSolutionFile);
-                //File.Delete(pathToWrapperCode);
+                File.Delete(pathToSolutionFile);
+                File.Delete(pathToWrapperCode);
             }
 
             return testResults;
@@ -160,12 +120,16 @@ s.run(pathToCode, function(output){
         private string PreprocessJsSolution(string template, string code, string input)
         {
             input = input
-                    .Replace("\\", "\\\\")
-                    .Replace("\"", "\\\"");
+                    .Replace("`", @"\`");
+            if (input.Last() == '\\')
+            {
+                input = input.Substring(0, input.Length - 1) + @"\\";
+            }
+
             var argsString =
                     string.Join(", ", input.Trim()
                                            .Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
-                                           .Select(arg => string.Format("\"{0}\"", arg)));
+                                           .Select(arg => string.Format("`{0}`", arg)));
             return template
                     .Replace(TestArgsPlaceholder, argsString)
                     .Replace(UserInputPlaceholder, code);
@@ -174,18 +138,6 @@ s.run(pathToCode, function(output){
         private string ProcessSandboxWrapper(string pathToSolutionFile)
         {
             return this.JsSandboxWrapper.Replace(PathToCodePlaceholder, this.ProcessModulePath(pathToSolutionFile));
-        }
-
-        private string PreprocessJsSubmission(string template, string code)
-        {
-            var processedCode = template
-                .Replace(RequiredModules, this.JsCodeRequiredModules)
-                .Replace(PreevaluationPlaceholder, this.JsCodePreevaulationCode)
-                .Replace(EvaluationPlaceholder, this.JsCodeEvaluation)
-                .Replace(PostevaluationPlaceholder, this.JsCodePostevaulationCode)
-                .Replace(UserInputPlaceholder, code);
-
-            return processedCode;
         }
     }
 }

@@ -2566,7 +2566,6 @@
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Manage.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
-    <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Currency.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Date.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\DateTime.cshtml" />
@@ -2601,6 +2600,7 @@
     <Folder Include="App_GlobalResources\Areas\Administration\Shared\Views\EditorTemplates\" />
     <Folder Include="App_GlobalResources\Home\ViewModels\" />
     <Folder Include="App_GlobalResources\Submissions\ViewModels\" />
+    <Folder Include="Content\Images\" />
     <Folder Include="Files\" />
   </ItemGroup>
   <ItemGroup>

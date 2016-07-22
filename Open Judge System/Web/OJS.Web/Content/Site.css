@@ -43,9 +43,9 @@ input[type="checkbox"].input-validation-error {
     margin-top: 20px; /* its buggy without it */
 }
 
-    .jumbotron h1 {
-        color: #FFF;
-    }
+.jumbotron h1 {
+    color: #FFF;
+}
 
 @media (max-width: 767px) {
     .jumbotron h1 {
@@ -147,7 +147,7 @@ input[type="checkbox"].input-validation-error {
     line-height: 48px;
 }
 
-@media (min-width: 991px) {
+/*@media (min-width: 991px) {
     .nav > li > a {
         padding: 15px 10px;
     }
@@ -157,7 +157,7 @@ input[type="checkbox"].input-validation-error {
     .nav > li > a {
         padding: 15px 7px;
     }
-}
+}*/
 
 .no-padding-right {
     padding-right: 0;
@@ -182,27 +182,42 @@ input[type="checkbox"].input-validation-error {
     color: #00AA00;
 }
 
-<!-- new -->
-#NavLogo {
-    padding: 0;
-}
-
-#NavLogo:hover {
+/* new */
+.nav-logo:hover {
     background-color: transparent;
 }
 
-#NavLogo img {
-    height: 46px;
+.nav-logo img {
+    height: 50px;
     width: auto;
     margin: 0;
+    padding-left: 25px;
 }
 
-.MenuItem {
+.menu-item {
     display: block;
-    padding: 15px 25px;
+    margin: 0 auto;
+    padding: 0px 25px;
+    border-right: 2px solid #7C878E;
+    display: inline-block;
 }
 
-.MenuItem:hover {
-    background-color: #444;
+.menu-item:hover {
+    background-color: #373A3E;
     border-bottom: 0;
+}
+
+.navbar-nav .menu-item a {
+    display: inline-block;
+}
+
+.dropdown-menu li > a {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .menu-item,
+    .navbar-nav .nav-logo a {
+        padding: 0;
+    }
 }

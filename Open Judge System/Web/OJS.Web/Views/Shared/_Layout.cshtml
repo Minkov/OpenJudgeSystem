@@ -42,113 +42,112 @@
     <div class="navbar navbar-inverse">
         <div class="container">
             <div class="navbar-header">
-                <ul class="nav navbar-nav">
-                <!--<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
-                </button>-->
-                <!--<a href="/" class="navbar-brand menu-item">BGCoder.com</a>-->
-                    <li class="menu-item" id="nav-logo">
-                        <a href="https://telerikacademy.com/">
-                            <img src="/Content/Images/telerik-academy-logo.png" alt="Telerik Academy" />
-                        </a>
-                    </li>
-            <!--</div>
-            <div class="navbar-collapse collapse">-->
-                    <li class="menu-item"><a href="/">@Resource.Home</a></li> 
-                    <li class="dropdown menu-item">
-                        <a href="/Contests" class="dropdown-toggle" data-toggle="dropdown">
-                            @Resource.Contests
-                            <strong class="caret"></strong>
-                        </a>
-                        <ul class="dropdown-menu">
-                            @foreach (CategoryMenuItemViewModel category in ViewBag.MainCategories)
-                            {
-                                <li><a href="@string.Format("/Contests/#!/List/ByCategory/{0}/{1}", category.Id, category.NameUrl)">@category.Name</a></li>
-                            }
-                            <li class="divider"></li>
-                            <li><a href="/Contests">@Resource.All</a></li>
-                        </ul>
-                    </li>
-                    <li class="menu-item"><a href="/Submissions">@Resource.Submissions</a></li>
-                    <li class="menu-item"><a href="/Feedback">@Resource.Feedback</a></li>
-                    @if (User.IsAdmin())
-                    {
+                </button>
+                <div class="nav navbar-nav nav-logo">
+                    <a href="https://telerikacademy.com/">
+                        <img src="/Content/Images/telerik-academy-logo.png" alt="Telerik Academy" />
+                    </a>
+                    @*<a href="/" class="navbar-brand1">BGCoder.com</a>*@
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li class="menu-item"><a href="/">@Resource.Home</a></li> 
                         <li class="dropdown menu-item">
-                            <a href="/Administration/Navigation" class="dropdown-toggle" data-toggle="dropdown">
-                                @Resource.Administration
+                            <a href="/Contests" class="dropdown-toggle" data-toggle="dropdown">
+                                @Resource.Contests
                                 <strong class="caret"></strong>
                             </a>
                             <ul class="dropdown-menu">
-                                <li class="dropdown-header">@Resource.Contests</li>
-                                <li>@Html.ActionLink(Resource.Contests, GlobalConstants.Index, "Contests", new { area = "Administration" }, null)</li>
-                                <li>@Html.ActionLink(Resource.Categories, GlobalConstants.Index, "ContestCategories", new { area = "Administration" }, null)</li>
-                                <li>@Html.ActionLink(Resource.Category_hierarchy, "Hierarchy", "ContestCategories", new { area = "Administration" }, null)</li>
-                                <li>@Html.ActionLink(Resource.Participants, GlobalConstants.Index, "Participants", new { area = "Administration" }, null)</li>
+                                @foreach (CategoryMenuItemViewModel category in ViewBag.MainCategories)
+                                {
+                                    <li><a href="@string.Format("/Contests/#!/List/ByCategory/{0}/{1}", category.Id, category.NameUrl)">@category.Name</a></li>
+                                }
                                 <li class="divider"></li>
-                                <li class="dropdown-header">@Resource.Problems</li>
-                                <li>@Html.ActionLink(Resource.Problems, GlobalConstants.Index, "Problems", new { area = "Administration" }, null)</li>
-                                <li>@Html.ActionLink(Resource.Test_files, GlobalConstants.Index, "Tests", new { area = "Administration" }, null)</li>
-                                <li class="divider"></li>
-                                <li class="dropdown-header">@Resource.Users</li>
-                                <li>@Html.ActionLink(Resource.Users, GlobalConstants.Index, "Users", new { area = "Administration" }, null)</li>
-                                <li>@Html.ActionLink(Resource.Submissions, GlobalConstants.Index, "Submissions", new { area = "Administration" }, null)</li>
-                                <li>@Html.ActionLink(Resource.Roles, GlobalConstants.Index, "Roles", new { area = "Administration" }, null)</li>
-                                <li class="divider"></li>
-                                <li class="dropdown-header">@Resource.Other</li>
-                                <li>@Html.ActionLink(Resource.News, GlobalConstants.Index, "News", new { area = "Administration" }, null)</li>
-                                <li>@Html.ActionLink(Resource.Feedback, GlobalConstants.Index, "Feedback", new { area = "Administration" }, null)</li>
-                                <li>@Html.ActionLink(Resource.Checkers, GlobalConstants.Index, "Checkers", new { area = "Administration" }, null)</li>
-                                <li>@Html.ActionLink(Resource.SubmissionTypes, GlobalConstants.Index, "SubmissionTypes", new { area = "Administration" }, null)</li>
-                                <li>@Html.ActionLink(Resource.Settings, GlobalConstants.Index, "Settings", new { area = "Administration" }, null)</li>
-                                <li class="divider"></li>
-                                <li class="dropdown-header">Anti-cheat</li>
-                                <li>@Html.ActionLink(Resource.IpUsage, "ByIP", "AntiCheat", new { area = "Administration" }, null)</li>
-                                <li>@Html.ActionLink(Resource.SubmissionSimilarity, "BySubmissionSimilarity", "AntiCheat", new { area = "Administration" }, null)</li>
-                                <li class="divider"></li>
-                                <li class="dropdown-header">Debugging</li>
-                                <li><a href="/Glimpse.axd">Glimpse</a></li>
-                                <li class="divider"></li>
-                                <li>@Html.ActionLink(Resource.All_administrations, GlobalConstants.Index, "Navigation", new { area = "Administration" }, null)</li>
+                                <li><a href="/Contests">@Resource.All</a></li>
                             </ul>
                         </li>
-                    }
-                    @if (Request.IsAuthenticated)
-                    {
-                        using (Html.BeginForm("LogOff", "Account", new { area = string.Empty }, FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+                        <li class="menu-item"><a href="/Submissions">@Resource.Submissions</a></li>
+                        <li class="menu-item"><a href="/Feedback">@Resource.Feedback</a></li>
+                        @if (User.IsAdmin())
                         {
-                            @Html.AntiForgeryToken()
+                            <li class="dropdown menu-item">
+                                <a href="/Administration/Navigation" class="dropdown-toggle" data-toggle="dropdown">
+                                    @Resource.Administration
+                                    <strong class="caret"></strong>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li class="dropdown-header">@Resource.Contests</li>
+                                    <li>@Html.ActionLink(Resource.Contests, GlobalConstants.Index, "Contests", new { area = "Administration" }, null)</li>
+                                    <li>@Html.ActionLink(Resource.Categories, GlobalConstants.Index, "ContestCategories", new { area = "Administration" }, null)</li>
+                                    <li>@Html.ActionLink(Resource.Category_hierarchy, "Hierarchy", "ContestCategories", new { area = "Administration" }, null)</li>
+                                    <li>@Html.ActionLink(Resource.Participants, GlobalConstants.Index, "Participants", new { area = "Administration" }, null)</li>
+                                    <li class="divider"></li>
+                                    <li class="dropdown-header">@Resource.Problems</li>
+                                    <li>@Html.ActionLink(Resource.Problems, GlobalConstants.Index, "Problems", new { area = "Administration" }, null)</li>
+                                    <li>@Html.ActionLink(Resource.Test_files, GlobalConstants.Index, "Tests", new { area = "Administration" }, null)</li>
+                                    <li class="divider"></li>
+                                    <li class="dropdown-header">@Resource.Users</li>
+                                    <li>@Html.ActionLink(Resource.Users, GlobalConstants.Index, "Users", new { area = "Administration" }, null)</li>
+                                    <li>@Html.ActionLink(Resource.Submissions, GlobalConstants.Index, "Submissions", new { area = "Administration" }, null)</li>
+                                    <li>@Html.ActionLink(Resource.Roles, GlobalConstants.Index, "Roles", new { area = "Administration" }, null)</li>
+                                    <li class="divider"></li>
+                                    <li class="dropdown-header">@Resource.Other</li>
+                                    <li>@Html.ActionLink(Resource.News, GlobalConstants.Index, "News", new { area = "Administration" }, null)</li>
+                                    <li>@Html.ActionLink(Resource.Feedback, GlobalConstants.Index, "Feedback", new { area = "Administration" }, null)</li>
+                                    <li>@Html.ActionLink(Resource.Checkers, GlobalConstants.Index, "Checkers", new { area = "Administration" }, null)</li>
+                                    <li>@Html.ActionLink(Resource.SubmissionTypes, GlobalConstants.Index, "SubmissionTypes", new { area = "Administration" }, null)</li>
+                                    <li>@Html.ActionLink(Resource.Settings, GlobalConstants.Index, "Settings", new { area = "Administration" }, null)</li>
+                                    <li class="divider"></li>
+                                    <li class="dropdown-header">Anti-cheat</li>
+                                    <li>@Html.ActionLink(Resource.IpUsage, "ByIP", "AntiCheat", new { area = "Administration" }, null)</li>
+                                    <li>@Html.ActionLink(Resource.SubmissionSimilarity, "BySubmissionSimilarity", "AntiCheat", new { area = "Administration" }, null)</li>
+                                    <li class="divider"></li>
+                                    <li class="dropdown-header">Debugging</li>
+                                    <li><a href="/Glimpse.axd">Glimpse</a></li>
+                                    <li class="divider"></li>
+                                    <li>@Html.ActionLink(Resource.All_administrations, GlobalConstants.Index, "Navigation", new { area = "Administration" }, null)</li>
+                                </ul>
+                            </li>
                         }
-
-                        <li class="dropdown menu-item">
-                            @{
-                                var welcomeMessage = string.Format("{0}, {1}!", ResourceLogin.Welcome_message, User.Identity.Name);
+                        @if (Request.IsAuthenticated)
+                        {
+                            using (Html.BeginForm("LogOff", "Account", new { area = string.Empty }, FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+                            {
+                                @Html.AntiForgeryToken()
                             }
-                            <a href="/Users/Profile" title="@Resource.Settings" class="text-primary dropdown-toggle" data-toggle="dropdown">
-                                @welcomeMessage
-                                <strong class="caret"></strong>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li>@Html.ActionLink("View profile", GlobalConstants.Index, "Profile", new { area = "Users" }, new { title = Resource.Settings, @class = "text-primary" })</li>
-                                <li><a href="javascript:document.getElementById('logoutForm').submit()">@ResourceLogin.Log_out</a></li>
-                            </ul>
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="dropdown menu-item">
-                            <a href="/" class="dropdown-toggle" data-toggle="dropdown">
-                                User
-                                <strong class="caret"></strong>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li>@Html.ActionLink(ResourceLogin.Log_in, "Login", "Account", new { area = string.Empty }, htmlAttributes: new { id = "loginLink" })</li>
-                                <li>@Html.ActionLink(ResourceLogin.Register, "Register", "Account", new { area = string.Empty }, htmlAttributes: new { id = "registerLink" })</li>
-                            </ul>
-                        </li>
-                    }
-                </ul>
+
+                            <li class="dropdown menu-item">
+                                @{
+                                    var welcomeMessage = string.Format("{0}, {1}!", ResourceLogin.Welcome_message, User.Identity.Name);
+                                }
+                                <a href="/Users/Profile" title="@Resource.Settings" class="text-primary dropdown-toggle" data-toggle="dropdown">
+                                    @welcomeMessage
+                                    <strong class="caret"></strong>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>@Html.ActionLink("View profile", GlobalConstants.Index, "Profile", new { area = "Users" }, new { title = Resource.Settings, @class = "text-primary" })</li>
+                                    <li><a href="javascript:document.getElementById('logoutForm').submit()">@ResourceLogin.Log_out</a></li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="dropdown menu-item">
+                                <a href="/" class="dropdown-toggle" data-toggle="dropdown">
+                                    User
+                                    <strong class="caret"></strong>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>@Html.ActionLink(ResourceLogin.Log_in, "Login", "Account", new { area = string.Empty }, htmlAttributes: new { id = "loginLink" })</li>
+                                    <li>@Html.ActionLink(ResourceLogin.Register, "Register", "Account", new { area = string.Empty }, htmlAttributes: new { id = "registerLink" })</li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
                     <div class="hidden-xs hidden-sm navbar-right search-form">
                         <form class="navbar-form" role="search" action="/Search/Results">
                             <div class="input-group">
@@ -162,6 +161,7 @@
                     <div class="col-sm-1 hidden-lg hidden-md hidden-xs btn btn-search-small navbar-left">
                         <a href="/Search/" class="btn btn-default btn-search"><i class="glyphicon glyphicon-search"></i></a>
                     </div>
+                </div>
             </div>
         </div>
     </div>

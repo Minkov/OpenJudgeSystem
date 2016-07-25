@@ -9,7 +9,6 @@
 <div class="row">
     <div class="col-md-6">
         <h1>@Resource.Project_title</h1>
-<div>
         <p class="lead">@Resource.Project_subtitle</p>
         @if (Model.ActiveContests.Any())
         {
@@ -18,7 +17,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="pull-right col-xs-6">
+    <div class="col-sm-8 col-sm-offset-2">
         @if (Model.ActiveContests.Any())
         {
             <h2>@Resource.Active_contests</h2>
@@ -63,13 +62,15 @@
         }
     </div>
 </div>
-    <!-- remove news
+@* remove news
+<div class="row">
     <div class="col-md-4">
         <h2>@Resource.News</h2>
         @{Html.RenderAction("LatestNews", "News", new { newsCount = 4 });}
-    </div> -->
+    </div>
+</div>*@
 <div class="row">
-    <div class="col-xs-4 pull-right">
+    <div class="col-sm-8 col-sm-offset-2">
         <h2>@Resource.Upcoming_contests</h2>
         @if (!Model.FutureContests.Any())
         {
@@ -97,7 +98,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-xs-4 pull-right">
+    <div class="col-sm-8 col-sm-offset-2">
         <h2>@Resource.Previous_contests</h2>
         @if (!Model.PastContests.Any())
         {

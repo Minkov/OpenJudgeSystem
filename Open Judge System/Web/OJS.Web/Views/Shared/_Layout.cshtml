@@ -51,11 +51,11 @@
                     <a href="https://telerikacademy.com/">
                         <img src="/Content/Images/telerik-academy-logo.png" alt="Telerik Academy" />
                     </a>
-                    @*<a href="/" class="navbar-brand1">BGCoder.com</a>*@
+                    @*<a href="/" class="navbar-brand">BGCoder.com</a>*@
                 </div>
-                <div class="navbar-collapse collapse">
+                <div class="navbar-collapse collapse col-sm-8">
                     <ul class="nav navbar-nav">
-                        <li class="menu-item"><a href="/">@Resource.Home</a></li> 
+                        <li class="menu-item"><a href="/">@Resource.Home</a></li>
                         <li class="dropdown menu-item">
                             <a href="/Contests" class="dropdown-toggle" data-toggle="dropdown">
                                 @Resource.Contests
@@ -64,7 +64,7 @@
                             <ul class="dropdown-menu">
                                 @foreach (CategoryMenuItemViewModel category in ViewBag.MainCategories)
                                 {
-                                    <li><a href="@string.Format("/Contests/#!/List/ByCategory/{0}/{1}", category.Id, category.NameUrl)">@category.Name</a></li>
+                                <li><a href=@string.Format("/Contests/#!/List/ByCategory/{0}/{1}", category.Id, category.NameUrl)>@category.Name</a></li>
                                 }
                                 <li class="divider"></li>
                                 <li><a href="/Contests">@Resource.All</a></li>
@@ -122,7 +122,7 @@
 
                             <li class="dropdown menu-item">
                                 @{
-                                    var welcomeMessage = string.Format("{0}, {1}!", ResourceLogin.Welcome_message, User.Identity.Name);
+                                var welcomeMessage = string.Format("{0}, {1}!", ResourceLogin.Welcome_message, User.Identity.Name);
                                 }
                                 <a href="/Users/Profile" title="@Resource.Settings" class="text-primary dropdown-toggle" data-toggle="dropdown">
                                     @welcomeMessage
@@ -148,19 +148,19 @@
                             </li>
                         }
                     </ul>
-                    <div class="hidden-xs hidden-sm navbar-right search-form">
-                        <form class="navbar-form" role="search" action="/Search/Results">
-                            <div class="input-group">
-                                <input type="text" class="form-control search-box" placeholder=@Resource.Search name="searchTerm" id="searchTerm">
-                                <div class="input-group-btn">
-                                    <button class="btn btn-default btn-search" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-                                </div>
+                </div>
+                <div class="hidden-xs hidden-sm search-form col-md-3">
+                    <form class="navbar-form" role="search" action="/Search/Results">
+                        <div class="input-group">
+                            <input type="text" class="form-control search-box" placeholder=@Resource.Search name="searchTerm" id="searchTerm" />
+                            <div class="input-group-btn">
+                                <button class="btn btn-default btn-search" type="submit"><i class="glyphicon glyphicon-search"></i></button>
                             </div>
-                        </form>
-                    </div>
-                    <div class="col-sm-1 hidden-lg hidden-md hidden-xs btn btn-search-small navbar-left">
-                        <a href="/Search/" class="btn btn-default btn-search"><i class="glyphicon glyphicon-search"></i></a>
-                    </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="hidden-xs hidden-md hidden-lg btn btn-search-small col-sm-1">
+                    <a href="/Search/" class="btn btn-default btn-search"><i class="glyphicon glyphicon-search"></i></a>
                 </div>
             </div>
         </div>
@@ -190,7 +190,7 @@
                 }
 
                 @:<div class="@messageClass"><strong>@Html.Raw(message.Content)</strong></div>
-        }
+            }
         }
 
         @RenderBody()

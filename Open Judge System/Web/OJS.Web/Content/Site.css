@@ -198,7 +198,7 @@ input[type="checkbox"].input-validation-error {
     display: block;
     margin: 0 auto;
     padding: 0px 25px;
-    border-right: 2px solid #7C878E;
+    /*border-right: 2px solid #7C878E;*/
     display: inline-block;
 }
 
@@ -215,7 +215,7 @@ input[type="checkbox"].input-validation-error {
     width: 100%;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) { /* sm */
     .menu-item,
     .navbar-nav .nav-logo a {
         padding: 0;

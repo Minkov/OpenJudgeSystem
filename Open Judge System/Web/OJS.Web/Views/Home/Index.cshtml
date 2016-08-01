@@ -32,9 +32,9 @@
                             <td>
                                 <a href="@ContestsHelper.GetUrl(contest.Id, contest.Name)"><strong>@contest.Name</strong></a><br />
                                 @{
-                        string remainingTimeMessage =
-                            string.Format(Resource.Remaining_time, hoursRemaining, hoursRemaining != 1 ?
-                                Resource.Hours : Resource.Hour, minutesRemaining);
+                                    string remainingTimeMessage =
+                                    string.Format(Resource.Remaining_time, hoursRemaining, hoursRemaining != 1 ?
+                                        Resource.Hours : Resource.Hour, minutesRemaining);
                                 }
                                 <small>@remainingTimeMessage</small>
                             </td>

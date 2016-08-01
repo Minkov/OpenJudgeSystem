@@ -221,3 +221,10 @@ input[type="checkbox"].input-validation-error {
         padding: 0;
     }
 }
+
+.contest {
+    padding: 15px;
+}
+.contest:hover {
+    background-color: #D5D5D8;
+}

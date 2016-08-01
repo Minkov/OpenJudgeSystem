@@ -168,4 +168,7 @@
   <data name="Upcoming_contests" xml:space="preserve">
     <value>Upcoming contests</value>
   </data>
+  <data name="View" xml:space="preserve">
+    <value>View</value>
+  </data>
 </root>

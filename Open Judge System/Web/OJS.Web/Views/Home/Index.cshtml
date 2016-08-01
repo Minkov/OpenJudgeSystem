@@ -6,71 +6,50 @@
     ViewBag.Title = Resource.Title;
 }
 
-<div class="row">
-    <div class="col-md-6">
-        <h1>@Resource.Project_title</h1>
-        <p class="lead">@Resource.Project_subtitle</p>
-        @*@if (Model.ActiveContests.Any())
-        {
-            <div class="fb-like" data-href="http://bgcoder.com" data-send="true" data-width="450" data-show-faces="true" data-colorscheme="dark"></div>
-        }*@
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h1>@Resource.Project_title</h1>
+            <p class="lead">@Resource.Project_subtitle</p>
+            @*@if (Model.ActiveContests.Any())
+            {
+                <div class="fb-like" data-href="http://bgcoder.com" data-send="true" data-width="450" data-show-faces="true" data-colorscheme="dark"></div>
+            }*@
+        </div>
     </div>
-</div>
-<div class="row">
-    <div class="col-sm-8 col-sm-offset-2">
+    <div class="row">
         @if (Model.ActiveContests.Any())
         {
             <h2>@Resource.Active_contests</h2>
-            <table class="table table-hover">
-                @if (Model.ActiveContests.Count() <= 3)
-                {
-                    foreach (var contest in Model.ActiveContests)
-                    {
-                        var hoursRemaining = (int)((contest.EndTime.Value - DateTime.Now)).TotalHours;
-                        var minutesRemaining = (contest.EndTime.Value - DateTime.Now).Minutes;
-                        <tr>
-                            <td>
-                                <a href="@ContestsHelper.GetUrl(contest.Id, contest.Name)"><strong>@contest.Name</strong></a><br />
-                                @{
-                                    string remainingTimeMessage =
-                                    string.Format(Resource.Remaining_time, hoursRemaining, hoursRemaining != 1 ?
-                                        Resource.Hours : Resource.Hour, minutesRemaining);
-                                }
-                                <small>@remainingTimeMessage</small>
-                            </td>
+            foreach (var contest in Model.ActiveContests)
+            {
+                var hoursRemaining = (int)((contest.EndTime.Value - DateTime.Now)).TotalHours;
+                var minutesRemaining = (contest.EndTime.Value - DateTime.Now).Minutes;
+                string remainingTimeMessage = string.Format(Resource.Remaining_time, hoursRemaining,
+                        hoursRemaining != 1 ? Resource.Hours : Resource.Hour, minutesRemaining);
 
-                            <td><a class="btn btn-success pull-left" href="@ContestsHelper.GetUrl(contest.Id, contest.Name)">@Resource.Participate</a></td>
-                        </tr>
-                    }
-                }
-                else
-                {
-                    foreach (var contest in Model.ActiveContests)
-                    {
-                        <tr>
-                            <td class="">
-                                <a href="@ContestsHelper.GetUrl(contest.Id, contest.Name)">@contest.Name</a>
-                            </td>
-                        </tr>
-                    }
-                }
-            </table>
-        }
-        else
-        {
-            <div class="fb-like" data-href="http://www.facebook.com/BGCoder" data-colorscheme="dark" data-width="380" data-show-faces="true" data-header="false" data-stream="false" data-show-border="false"></div>
+                <div class="col-sm-6 col-md-4 contest">
+                    <div class="row">
+                        <a href="@ContestsHelper.GetUrl(contest.Id, contest.Name)" class="col-xs-8">
+                            <strong>@contest.Name</strong>
+                        </a>
+                        <a class="btn btn-success pull-left" href="@ContestsHelper.GetUrl(contest.Id, contest.Name)">
+                            @Resource.Participate
+                        </a>
+                    </div>
+                    <small>@remainingTimeMessage</small>
+                </div>
+            }
         }
     </div>
-</div>
-@* remove news
-<div class="row">
-    <div class="col-md-4">
-        <h2>@Resource.News</h2>
-        @{Html.RenderAction("LatestNews", "News", new { newsCount = 4 });}
-    </div>
-</div>*@
-<div class="row">
-    <div class="col-sm-8 col-sm-offset-2">
+    @* remove news
+    <div class="row">
+        <div class="col-md-4">
+            <h2>@Resource.News</h2>
+            @{Html.RenderAction("LatestNews", "News", new { newsCount = 4 });}
+        </div>
+    </div>*@
+    <div class="row">
         <h2>@Resource.Upcoming_contests</h2>
         @if (!Model.FutureContests.Any())
         {
@@ -78,27 +57,23 @@
         }
         else
         {
-            <table class="table table-hover">
-                @foreach (var contest in Model.FutureContests)
-                {
-                    <tr>
-                        <td>
-                            <a href="@ContestsHelper.GetUrl(contest.Id, contest.Name)">@contest.Name</a>
-                            <p class="text-right">@Resource.Starts: @contest.StartTime.ToString()</p>
-                        </td>
-                    </tr>
-                }
-            </table>
-            <p class="pull-right"><a class="btn btn-default" href="/Contests/">@Resource.See_more &raquo;</a></p>
-        }
-        @if (User.IsAdmin())
-        {
-            <p class="pull-left"><a class="btn btn-primary" href="/Administration/Contests">@Resource.Administration &raquo;</a></p>
+            foreach (var contest in Model.FutureContests)
+            {
+                <div class="col-sm-6 col-md-4 contest">
+                    <div class="row">
+                        <a href="@ContestsHelper.GetUrl(contest.Id, contest.Name)" class="col-xs-8">
+                            <strong>@contest.Name</strong>
+                        </a>
+                        <a class="btn btn-primary pull-left" href="@ContestsHelper.GetUrl(contest.Id, contest.Name)">
+                            @Resource.View
+                        </a>
+                    </div> 
+                    <p>@Resource.Starts: @contest.StartTime.ToString()</p>
+                </div>
+            }
         }
     </div>
-</div>
-<div class="row">
-    <div class="col-sm-8 col-sm-offset-2">
+    <div class="row">
         <h2>@Resource.Previous_contests</h2>
         @if (!Model.PastContests.Any())
         {
@@ -106,22 +81,29 @@
         }
         else
         {
-            <table class="table table-hover">
-                @foreach (var contest in Model.PastContests)
-                {
-                    <tr>
-                        <td>
-                            <a href="@ContestsHelper.GetUrl(contest.Id, contest.Name)">@contest.Name</a>
-                            <p class="text-right">@Resource.Ended: @contest.EndTime.ToString()</p>
-                        </td>
-                    </tr>
-                }
-            </table>
-        }
-        <p class="pull-right"><a class="btn btn-default" href="/Contests/">@Resource.See_more &raquo;</a></p>
-        @if (User.IsAdmin())
-        {
-            <p class="pull-left"><a class="btn btn-primary" href="/Administration/Contests">@Resource.Administration &raquo;</a></p>
+            foreach (var contest in Model.PastContests)
+            {
+                <div class="col-sm-6 col-md-4 contest">
+                    <div class="row">
+                        <a href="@ContestsHelper.GetUrl(contest.Id, contest.Name)" class="col-xs-8">
+                            <strong>@contest.Name</strong>
+                        </a>
+                        <a class="btn btn-primary pull-left" href="@ContestsHelper.GetUrl(contest.Id, contest.Name)">
+                            @Resource.View
+                        </a>
+                    </div>
+                    <p>@Resource.Ended: @contest.EndTime.ToString()</p>
+                </div>
+            }
         }
     </div>
+    <p>
+        <a class="btn btn-default" href="/Contests/">@Resource.See_more &raquo;</a>
+    </p>
+    @if (User.IsAdmin())
+    {
+        <p>
+            <a class="btn btn-primary" href="/Administration/Contests">@Resource.Administration &raquo;</a>
+        </p>
+    }
 </div>

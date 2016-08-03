@@ -224,6 +224,7 @@ input[type="checkbox"].input-validation-error {
 
 .contest {
     padding: 15px;
+    min-height: 100px;
 }
 .contest:hover {
     background-color: #D5D5D8;

@@ -207,10 +207,6 @@ input[type="checkbox"].input-validation-error {
     border-bottom: 0;
 }
 
-.navbar-nav .menu-item a {
-    display: inline-block;
-}
-
 .dropdown-menu li > a {
     width: 100%;
 }

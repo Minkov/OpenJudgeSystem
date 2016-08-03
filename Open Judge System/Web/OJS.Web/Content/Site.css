@@ -211,6 +211,10 @@ input[type="checkbox"].input-validation-error {
     width: 100%;
 }
 
+.dropdown-header {
+    text-align: center;
+}
+
 @media (min-width: 768px) { /* sm */
     .menu-item,
     .navbar-nav .nav-logo a {

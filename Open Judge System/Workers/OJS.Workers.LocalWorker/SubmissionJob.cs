@@ -239,7 +239,7 @@
                     executionStrategy = new CSharpTestRunnerExecutionStrategy(GetCompilerPath);
                     break;
                 case ExecutionStrategyType.NodeJsES6PreprocessExecuteAndCheck:
-                    executionStrategy = new NodeJsES6PreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsExecutablePath, Settings.SandboxModulePath);
+                    executionStrategy = new NodeJsES6PreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsExecutablePath);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
                     executionStrategy = new NodeJsPreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsLegacyExecutablePath);

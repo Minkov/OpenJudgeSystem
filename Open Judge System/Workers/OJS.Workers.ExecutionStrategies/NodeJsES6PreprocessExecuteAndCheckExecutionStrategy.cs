@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.IO;
+    using System.Linq;
 
     using OJS.Common.Extensions;
     using OJS.Workers.Checkers;
@@ -12,17 +12,11 @@
 
     public class NodeJsES6PreprocessExecuteAndCheckExecutionStrategy : ExecutionStrategy
     {
-        private const string UserInputPlaceholder = "#userInput#";
+        protected const string UserInputPlaceholder = "#userInput#";
 
-        private const string RequiredModules = "#requiredModule#";
-        private const string PreevaluationPlaceholder = "#preevaluationCode#";
-        private const string PostevaluationPlaceholder = "#postevaluationCode#";
-        private const string EvaluationPlaceholder = "#evaluationCode#";
+        protected const string TestArgsPlaceholder = "#testArguments";
 
-        private const string PathToCodePlaceholder = "#pathToCode#";
-        private const string TestArgsPlaceholder = "#testArguments";
-
-        public NodeJsES6PreprocessExecuteAndCheckExecutionStrategy(string nodeJsExecutablePath, string sandboxModulePath)
+        public NodeJsES6PreprocessExecuteAndCheckExecutionStrategy(string nodeJsExecutablePath)
         {
             if (!File.Exists(nodeJsExecutablePath))
             {
@@ -30,75 +24,42 @@
                     $"NodeJS not found in: {nodeJsExecutablePath}", nameof(nodeJsExecutablePath));
             }
 
-            //if (!File.Exists(sandboxModulePath) && !Directory.Exists(sandboxModulePath))
-            //{
-            //    throw new ArgumentException(
-            //        $"Sandbox lib not found in: {sandboxModulePath}", nameof(sandboxModulePath));
-            //}
-
             this.NodeJsExecutablePath = nodeJsExecutablePath;
-            this.SandboxModulePath = this.ProcessModulePath(sandboxModulePath);
         }
 
         protected string NodeJsExecutablePath { get; private set; }
 
-        protected string SandboxModulePath { get; private set; }
+        protected virtual string JsCodeTemplate => @"
+var util = require('util');
 
-        protected virtual string JsCodeRequiredModules => @"
-var EOL = require('os').EOL;
-var Sandbox = require(""" + this.ProcessModulePath(this.SandboxModulePath) + @""");";
+let vm = require('vm'),
+    sandbox,
+    consoleFake = {
+        'logs': [],
+        'log': function(text){
+            this.logs.push(text.toString());
+        }
+    },
+    userCode = " + UserInputPlaceholder + @";
 
-        protected virtual string JsCodePreevaulationCode => @"
-var content = ''";
+sandbox = {
+    'console': consoleFake,
+    '_____thisIsTheResultHidden': undefined
+};
 
-        protected virtual string JsCodePostevaulationCode => string.Empty;
+sandbox.console.logs =  [];
+vm.createContext(sandbox);
 
-        protected virtual string JsCodeEvaluation => @"
-var inputData = content.trim().split(EOL);
-var sandbox = new Sandbox();
-code += `; 
-solve(inputdata);
-`;
+userCode = `_____thisIsTheResultHidden = (${userCode}([" + TestArgsPlaceholder + @"]))`
 
-sandbox.run(code, function(output) {    
-    console.log(output);
-});";
+vm.runInNewContext(userCode, sandbox);
 
-        protected virtual string JsCodeTemplate => RequiredModules + @"
-
-var code = `var solve = " + UserInputPlaceholder + @"`;
-" + PreevaluationPlaceholder + @"
-" + EvaluationPlaceholder + @";
-" + PostevaluationPlaceholder;
-
-        protected virtual string JsSandboxWrapper => @"
-var EOL = require('os').EOL;
-var Sandbox = require(""" + this.SandboxModulePath + @""");
-var pathToCode = """ + PathToCodePlaceholder + @""";
-var s = new Sandbox();
-s.run(pathToCode, function(output){
-    //var lines = [...output.console];
-    var lines = [];
-    if(output.console && Array.isArray(output.console)){
-       lines.push(...output.console);
-    }
-
-    if(output.result && output.result !== 'null') {
-        lines.push(output.result.substr(1, output.result.length - 2));
-    }
-
-    console.log(lines.join(EOL).trim());
-});
+if(sandbox['_____thisIsTheResultHidden']) {
+    console.log(sandbox['_____thisIsTheResultHidden']);
+} else {
+    consoleFake.logs.forEach(log => console.log(log));
+}
 ";
-
-        //        protected virtual string JsSolutionTemplate => @"
-        //var solutionFunc = " + UserInputPlaceholder + @"
-        //var args = [" + TestArgsPlaceholder + @"];
-        //solutionFunc(args);
-        //";
-        protected virtual string JsSolutionTemplate => @"
-(" + UserInputPlaceholder + @"
-)([" + TestArgsPlaceholder + "]);";
 
         public override ExecutionResult Execute(ExecutionContext executionContext)
         {
@@ -108,13 +69,9 @@ s.run(pathToCode, function(output){
             // execution strategy there is no compilation
             result.IsCompiledSuccessfully = true;
 
-            // Preprocess the user submission
-            //var codeToExecute = this.PreprocessJsSubmission(this.JsCodeTemplate, executionContext.Code.Trim(';'));
-
             // Save the preprocessed submission which is ready for execution
 
             // Process the submission and check each test
-            //IExecutor executor = new RestrictedProcessExecutor();
             IExecutor executor = new StandardProcessExecutor();
             IChecker checker = Checker.CreateChecker(executionContext.CheckerAssemblyName, executionContext.CheckerTypeName, executionContext.CheckerParameter);
 
@@ -127,20 +84,19 @@ s.run(pathToCode, function(output){
         {
             var testResults = new List<TestResult>();
 
+            var solutionCodeTemplate = this.PreprocessJsSubmission(this.JsCodeTemplate, executionContext.Code.Trim(';'));
+
             foreach (var test in executionContext.Tests)
             {
-                var solutionCodeToExecute = this.PreprocessJsSolution(this.JsSolutionTemplate, executionContext.Code.Trim(), test.Input);
-                var pathToSolutionFile = FileHelpers.SaveStringToTempFile(solutionCodeToExecute);
-                string wrapperCode = this.ProcessSandboxWrapper(pathToSolutionFile);
-                var pathToWrapperCode = FileHelpers.SaveStringToTempFile(wrapperCode);
+                var codeToExecute = this.PreprocessJsSolution(solutionCodeTemplate, executionContext.Code.Trim(), test.Input);
+                var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
 
-                var processExecutionResult = executor.Execute(this.NodeJsExecutablePath, string.Empty, executionContext.TimeLimit, executionContext.MemoryLimit, new[] { pathToWrapperCode });
+                var processExecutionResult = executor.Execute(this.NodeJsExecutablePath, string.Empty, executionContext.TimeLimit, executionContext.MemoryLimit, new[] { pathToSolutionFile });
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, processExecutionResult.ReceivedOutput);
                 testResults.Add(testResult);
 
                 // Clean up the files
-                //File.Delete(pathToSolutionFile);
-                //File.Delete(pathToWrapperCode);
+                File.Delete(pathToSolutionFile);
             }
 
             return testResults;
@@ -149,12 +105,6 @@ s.run(pathToCode, function(output){
         protected virtual List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker, string codeSavePath)
         {
             return null;
-        }
-
-        protected string ProcessModulePath(string path)
-        {
-            path = Path.Combine(Directory.GetCurrentDirectory(), path);
-            return path.Replace('\\', '/');
         }
 
         private string PreprocessJsSolution(string template, string code, string input)
@@ -167,22 +117,12 @@ s.run(pathToCode, function(output){
                                            .Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
                                            .Select(arg => string.Format("\"{0}\"", arg)));
             return template
-                    .Replace(TestArgsPlaceholder, argsString)
-                    .Replace(UserInputPlaceholder, code);
-        }
-
-        private string ProcessSandboxWrapper(string pathToSolutionFile)
-        {
-            return this.JsSandboxWrapper.Replace(PathToCodePlaceholder, this.ProcessModulePath(pathToSolutionFile));
+                    .Replace(TestArgsPlaceholder, argsString);
         }
 
         private string PreprocessJsSubmission(string template, string code)
         {
             var processedCode = template
-                .Replace(RequiredModules, this.JsCodeRequiredModules)
-                .Replace(PreevaluationPlaceholder, this.JsCodePreevaulationCode)
-                .Replace(EvaluationPlaceholder, this.JsCodeEvaluation)
-                .Replace(PostevaluationPlaceholder, this.JsCodePostevaulationCode)
                 .Replace(UserInputPlaceholder, code);
 
             return processedCode;

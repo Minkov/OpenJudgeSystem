@@ -14,6 +14,7 @@
         JavaZipFileCompileExecuteAndCheck = 10,
         PythonExecuteAndCheck = 11,
         PhpCgiExecuteAndCheck = 5,
-        PhpCliExecuteAndCheck = 6
+        PhpCliExecuteAndCheck = 6,
+        NodeJSES6PreprocessAndRunMochaTests = 201
     }
 }

@@ -241,6 +241,9 @@
                 case ExecutionStrategyType.NodeJsES6PreprocessExecuteAndCheck:
                     executionStrategy = new NodeJsES6PreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsExecutablePath);
                     break;
+                case ExecutionStrategyType.NodeJSES6PreprocessAndRunMochaTests:
+                    executionStrategy = new NodeJSES6PreprocessAndRunMochaTestsExecutionStrategy(Settings.MochaModulePath, Settings.ChaiModulePath);
+                    break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
                     executionStrategy = new NodeJsPreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsLegacyExecutablePath);
                     break;

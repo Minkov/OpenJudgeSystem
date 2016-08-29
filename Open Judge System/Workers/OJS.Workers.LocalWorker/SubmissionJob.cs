@@ -248,10 +248,11 @@
                     executionStrategy = new NodeJsPreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsLegacyExecutablePath);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha:
-                    executionStrategy = new NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy(
-                        Settings.NodeJsExecutablePath,
-                        Settings.MochaModulePath,
-                        Settings.ChaiModulePath);
+                    //executionStrategy = new NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy(
+                    //    Settings.NodeJsExecutablePath,
+                    //    Settings.MochaModulePath,
+                    //    Settings.ChaiModulePath);
+                    executionStrategy = new NodeJSES6PreprocessAndRunMochaTestsExecutionStrategy(Settings.MochaModulePath, Settings.ChaiModulePath);
                     break;
                 case ExecutionStrategyType.IoJsPreprocessExecuteAndRunJsDomUnitTests:
                     executionStrategy = new IoJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy(

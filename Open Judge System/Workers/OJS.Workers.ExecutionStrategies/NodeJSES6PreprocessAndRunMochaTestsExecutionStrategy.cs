@@ -117,7 +117,7 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
                 var codeToExecute = this.PreprocessJsSolution(solutionCodeTemplate, executionContext.Code.Trim(), test.Input, index);
                 var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
 
-                var pathToResult = FileHelpers.SaveStringToTempFile("");
+                var pathToResult = FileHelpers.SaveStringToTempFile("") + ".json";
 
                 var reporterArg = "--reporter JSON";
 

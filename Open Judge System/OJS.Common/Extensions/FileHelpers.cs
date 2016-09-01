@@ -1,5 +1,6 @@
 ﻿namespace OJS.Common.Extensions
 {
+    using System;
     using System.IO;
 
     // TODO: Unit test
@@ -7,7 +8,15 @@
     {
         public static string SaveStringToTempFile(string stringToWrite)
         {
-            var tempFilePath = Path.GetTempFileName();
+            string tempFilePath = string.Empty;
+
+            tempFilePath = $"{Path.GetTempPath()}File-{Guid.NewGuid()}.txt";
+
+            if (File.Exists(tempFilePath))
+            {
+                File.Delete(tempFilePath);
+            }
+
             File.WriteAllText(tempFilePath, stringToWrite);
             return tempFilePath;
         }

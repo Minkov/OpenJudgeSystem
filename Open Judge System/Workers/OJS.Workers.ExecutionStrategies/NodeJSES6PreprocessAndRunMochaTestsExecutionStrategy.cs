@@ -141,8 +141,8 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
                 testResults.Add(testResult);
 
                 // Clean up the files
-                //File.Delete(pathToSolutionFile);
-                //File.Delete(pathToResult);
+                File.Delete(pathToSolutionFile);
+                File.Delete(pathToResult);
             }
 
             return testResults;

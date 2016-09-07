@@ -8,20 +8,22 @@
 @(Html.Kendo().Grid<OJS.Web.Areas.Administration.ViewModels.Submission.SubmissionAdministrationGridViewModel>()
     .Name("DataGrid")
     .Columns(columns =>
-        {
-            columns.Bound(model => model.Id);
-            columns.Bound(model => model.ParticipantName);
-            columns.Bound(model => model.ProblemName).ClientTemplate("<a href='" + Url.Action("Details", "Problems") + "/#= ProblemId #'>#= ProblemName #</a>");
-            columns.Bound(model => model.SubmissionTypeName);
-            columns.Bound(model => model.Status);
-            columns.Bound(model => model.Points);
-            columns.Bound(model => model.CreatedOn).Hidden();
-            columns.Bound(model => model.ModifiedOn).Hidden();
-            columns.Template(@<text></text>).ClientTemplate(string.Format("<a href='{0}/#= Id #' class='k-button k-button-icontext'>{1}</a>", Url.Action("Update", ControllerName), GeneralResource.Change)).Title(GeneralResource.Change);
-            columns.Template(@<text></text>).ClientTemplate(string.Format("<a href='{0}/#= Id #' class='k-button k-button-icontext'>{1}</a>", Url.Action("Delete", ControllerName), GeneralResource.Delete)).Title(GeneralResource.Delete);
-            columns.Template(@<text></text>).ClientTemplate(string.Format("<a href='{0}/#= Id #' class='k-button k-button-icontext' target='_blank'>{1}</a>", Url.Action("View", "Submissions", new { Area = "Contests" }), Resource.Details)).Title(Resource.Details);
-            columns.Template(@<text></text>).ClientTemplate(string.Format("<a href='{0}/#= Id #' class='k-button k-button-icontext' target='_blank'>{1}</a>", Url.Action("Retest", ControllerName), Resource.Retest)).Title(Resource.Retest);
-        })
+    {
+    columns.Bound(model => model.Id);
+    columns.Bound(model => model.ParticipantName);
+    columns.Bound(model => model.ProblemName).ClientTemplate("<a href='" + Url.Action("Details", "Problems") + "/#= ProblemId #'>#= ProblemName #</a>");
+    columns.Bound(model => model.ContestId).Hidden();
+    columns.Bound(model => model.ContestName);
+    columns.Bound(model => model.SubmissionTypeName);
+    columns.Bound(model => model.Status);
+    columns.Bound(model => model.Points);
+    columns.Bound(model => model.CreatedOn).Hidden();
+    columns.Bound(model => model.ModifiedOn).Hidden();
+    columns.Template(@<text></text>).ClientTemplate(string.Format("<a href='{0}/#= Id #' class='k-button k-button-icontext'>{1}</a>", Url.Action("Update", ControllerName), GeneralResource.Change)).Title(GeneralResource.Change);
+    columns.Template(@<text></text>).ClientTemplate(string.Format("<a href='{0}/#= Id #' class='k-button k-button-icontext'>{1}</a>", Url.Action("Delete", ControllerName), GeneralResource.Delete)).Title(GeneralResource.Delete);
+    columns.Template(@<text></text>).ClientTemplate(string.Format("<a href='{0}/#= Id #' class='k-button k-button-icontext' target='_blank'>{1}</a>", Url.Action("View", "Submissions", new { Area = "Contests" }), Resource.Details)).Title(Resource.Details);
+    columns.Template(@<text></text>).ClientTemplate(string.Format("<a href='{0}/#= Id #' class='k-button k-button-icontext' target='_blank'>{1}</a>", Url.Action("Retest", ControllerName), Resource.Retest)).Title(Resource.Retest);
+    })
         .ToolBar(toolbar =>
         {
             toolbar.Custom().Text(GeneralResource.Create).Action("Create", ControllerName);
@@ -43,16 +45,15 @@
             .Ajax()
             .ServerOperation(true)
             .Model(model =>
-                {
-                    model.Id(m => m.Id);
-                })
+            {
+                model.Id(m => m.Id);
+            })
             .Sort(sort => sort.Add(x => x.CreatedOn).Descending())
             .Read(read => read.Action("ReadSubmissions", ControllerName, new { id = Model }))
             .Destroy(destroy => destroy.Action("Destroy", ControllerName))
             .Events(ev => ev.Error("validateModelStateErrors"))
         )
 )
-
 <script type="text/javascript">
     function onDataBound(e) {
         CreateExportToExcelButton();

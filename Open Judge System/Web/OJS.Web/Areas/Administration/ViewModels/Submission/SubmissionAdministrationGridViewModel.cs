@@ -31,6 +31,15 @@
                     Processing = sub.Processing,
                     CreatedOn = sub.CreatedOn,
                     ModifiedOn = sub.ModifiedOn,
+                    ContestId = sub.Problem.ContestId,
+                    ContestName = sub.Problem.Contest.Name,
+                    Status = (!sub.Processing && sub.Processed)
+                        ? Resource.Processed
+                        : (sub.Processing && !sub.Processed)
+                            ? Resource.Processing
+                            : (!sub.Processing && !sub.Processed)
+                                ? Resource.Pending
+                                : Resource.Invalid_state
                 };
             }
         }
@@ -61,27 +70,33 @@
         public bool Processed { get; set; }
 
         [Display(Name = "Status", ResourceType = typeof(Resource))]
-        public string Status
-        {
-            get
-            {
-                if (!this.Processing && this.Processed)
-                {
-                    return Resource.Processed;
-                }
-                else if (this.Processing && !this.Processed)
-                {
-                    return Resource.Processing;
-                }
-                else if (!this.Processing && !this.Processed)
-                {
-                    return Resource.Pending;
-                }
-                else
-                {
-                    throw new InvalidOperationException(Resource.Invalid_state);
-                }
-            }
-        }
+        public string Status { get; set; }
+
+        //[Display(Name = "Status", ResourceType = typeof(Resource))]
+        //public string Status
+        //{
+        //    get
+        //    {
+        //        if (!this.Processing && this.Processed)
+        //        {
+        //            return Resource.Processed;
+        //        }
+        //        else if (this.Processing && !this.Processed)
+        //        {
+        //            return Resource.Processing;
+        //        }
+        //        else if (!this.Processing && !this.Processed)
+        //        {
+        //            return Resource.Pending;
+        //        }
+        //        else
+        //        {
+        //            throw new InvalidOperationException(Resource.Invalid_state);
+        //        }
+        //    }
+        //}
+
+        public int ContestId { get; private set; }
+        public string ContestName { get; private set; }
     }
 }

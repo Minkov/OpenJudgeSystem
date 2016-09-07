@@ -128,6 +128,9 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
                     executionContext.MemoryLimit,
                         new string[] { pathToSolutionFile, reporterArg, $"> {pathToResult}" });
 
+                // Hack to release the file
+                var stream = new StreamReader(pathToResult);
+                stream.Dispose();
 
                 var mochaTestResult = this.GetMochaTestResult(pathToResult);
 

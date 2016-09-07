@@ -41,7 +41,7 @@
                 WorkingDirectory = workingDirectory
             };
 
-            //throw new Exception(processStartInfo.Arguments);
+            throw new Exception(processStartInfo.Arguments);
 
             using (var process = System.Diagnostics.Process.Start(processStartInfo))
             {

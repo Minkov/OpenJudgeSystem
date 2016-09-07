@@ -27,5 +27,10 @@
             File.WriteAllBytes(tempFilePath, dataToWrite);
             return tempFilePath;
         }
+
+        public static string GetTempPath()
+        {
+            return Path.GetTempPath() + "File-" + Guid.NewGuid() + ".tmp";
+        }
     }
 }

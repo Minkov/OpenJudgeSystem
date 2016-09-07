@@ -19,8 +19,8 @@
             var serviceInstaller = new ServiceInstaller
             {
                 StartType = ServiceStartMode.Automatic,
-                DisplayName = "OJS Local Worker Service",
-                ServiceName = "OJS Local Worker Service",
+                DisplayName = "Stage OJS Local Worker Service",
+                ServiceName = "Stage OJS Local Worker Service",
                 Description =
                     "Evaluates submissions for the Open Judge System and executes processes in a sandboxed environment. Processes are executed on the current machine.",
             };

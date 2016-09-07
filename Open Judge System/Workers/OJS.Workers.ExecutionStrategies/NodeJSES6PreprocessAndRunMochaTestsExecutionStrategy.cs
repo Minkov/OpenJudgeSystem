@@ -113,9 +113,15 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
                 }
 
                 var codeToExecute = this.PreprocessJsSolution(solutionCodeTemplate, executionContext.Code.Trim(), test.Input, index);
-                var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
 
-                var pathToResult = Path.GetTempFileName();
+                // var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
+                var pathToSolutionFile = Path.GetTempPath() + "File-" + Guid.NewGuid() + "-" + Guid.NewGuid() + ".tmp";
+                using (StreamWriter writer = new StreamWriter(pathToSolutionFile))
+                {
+                    writer.WriteLine(codeToExecute);
+                }
+
+                var pathToResult = Path.GetTempPath() + "File-" + Guid.NewGuid() + "-" + Guid.NewGuid() + ".tmp";
 
                 var reporterArg = "--reporter JSON";
 
@@ -127,7 +133,8 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
                         new string[] { pathToSolutionFile, reporterArg, $"> {pathToResult}" });
 
                 // Hack to release the file
-                var newResultsPath = Path.GetTempPath() + "File-" + Guid.NewGuid() + ".tmp";
+                var newResultsPath = Path.GetTempPath() + "File-" + Guid.NewGuid() + "-" + Guid.NewGuid() + ".tmp";
+
                 File.Copy(pathToResult, newResultsPath);
 
                 var mochaTestResult = this.GetMochaTestResult(newResultsPath);

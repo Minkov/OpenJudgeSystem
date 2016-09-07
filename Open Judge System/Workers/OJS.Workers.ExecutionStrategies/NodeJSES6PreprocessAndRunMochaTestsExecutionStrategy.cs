@@ -39,8 +39,6 @@
             this.ChaiModulePath = this.FixPath(chaiModulePath); ;
         }
 
-
-
         protected string MochaModulePath { get; private set; }
 
         protected string ChaiModulePath { get; private set; }
@@ -129,10 +127,10 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
                         new string[] { pathToSolutionFile, reporterArg, $"> {pathToResult}" });
 
                 // Hack to release the file
-                var stream = new StreamReader(pathToResult);
-                stream.Dispose();
+                var newResultsPath = Path.GetTempPath() + "File-" + Guid.NewGuid() + ".tmp";
+                File.Copy(pathToResult, newResultsPath);
 
-                var mochaTestResult = this.GetMochaTestResult(pathToResult);
+                var mochaTestResult = this.GetMochaTestResult(newResultsPath);
 
                 var receivedOutput = "yes";
 

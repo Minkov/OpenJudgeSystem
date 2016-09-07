@@ -14,7 +14,7 @@
 
     using ExecutionContext = OJS.Workers.ExecutionStrategies.ExecutionContext;
 
-    public class SubmissionJob : IJob
+    public class SubmissionJob : IJob   
     {
         private readonly ILog logger;
 

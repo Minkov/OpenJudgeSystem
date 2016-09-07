@@ -117,7 +117,7 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
                 var codeToExecute = this.PreprocessJsSolution(solutionCodeTemplate, executionContext.Code.Trim(), test.Input, index);
                 var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
 
-                var pathToResult = FileHelpers.SaveStringToTempFile("") + ".json";
+                var pathToResult = Path.GetTempFileName();
 
                 var reporterArg = "--reporter JSON";
 
@@ -127,6 +127,7 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
                     executionContext.TimeLimit,
                     executionContext.MemoryLimit,
                         new string[] { pathToSolutionFile, reporterArg, $"> {pathToResult}" });
+
 
                 var mochaTestResult = this.GetMochaTestResult(pathToResult);
 
@@ -172,9 +173,17 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
 
         private MochaTestResult GetMochaTestResult(string pathToJsonResult)
         {
-            var json = File.ReadAllText(pathToJsonResult);
-            MochaTestResult result = JsonConvert.DeserializeObject<MochaTestResult>(json);
-            return result;
+            try
+            {
+                var json = File.ReadAllText(pathToJsonResult);
+
+                MochaTestResult result = JsonConvert.DeserializeObject<MochaTestResult>(json);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Fuck it! " + ex.Message, ex);
+            }
         }
     }
 }

@@ -10,7 +10,8 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-
+    using System.Threading;
+    using System.Threading.Tasks;
     public class NodeJSES6PreprocessAndRunMochaTestsExecutionStrategy : ExecutionStrategy
     {
         protected const string UserInputPlaceholder = "#userInput";
@@ -28,7 +29,8 @@
                     $"Mocha not found in: {mochaModulePath}", nameof(mochaModulePath));
             }
 
-            this.MochaModulePath = this.FixPath(mochaModulePath);
+            //this.MochaModulePath = mochaModulePath;
+            this.MochaModulePath = new FileInfo(mochaModulePath).FullName;
 
             if (!File.Exists(chaiModulePath))
             {
@@ -36,7 +38,7 @@
                     $"Chai not found in: {chaiModulePath}", nameof(chaiModulePath));
             }
 
-            this.ChaiModulePath = this.FixPath(chaiModulePath); ;
+            this.ChaiModulePath = this.FixPath(new FileInfo(chaiModulePath).FullName);
         }
 
         protected string MochaModulePath { get; private set; }
@@ -125,24 +127,22 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
 
                 var reporterArg = "--reporter JSON";
 
-                var processExecutionResult = executor.Execute(
+                ProcessExecutionResult processExecutionResult;
+                processExecutionResult = executor.Execute(
                     this.MochaModulePath,
                     string.Empty,
                     executionContext.TimeLimit,
                     executionContext.MemoryLimit,
-                        new string[] { pathToSolutionFile, reporterArg, "> " + pathToResult });
+                        new string[] { this.FixPath(pathToSolutionFile), reporterArg, "> " + this.FixPath(pathToResult) });
 
-                // Hack to release the file
-                var newResultsPath = FileHelpers.GetTempPath();
-
-                File.Copy(pathToResult, newResultsPath);
-
-                var mochaTestResult = this.GetMochaTestResult(newResultsPath);
+                var mochaTestResult = this.GetMochaTestResult(pathToResult);
 
                 var receivedOutput = "yes";
 
-                //throw new Exception(newResultsPath);
-
+                //if (mochaTestResult == null)
+                //{
+                //    throw new Exception(pathToResult);
+                //}
                 if (mochaTestResult.passes == null || !mochaTestResult.passes.Any())
                 {
                     receivedOutput = mochaTestResult.failures.First()["err"].message + "";
@@ -178,7 +178,8 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
 
         private string FixPath(string path)
         {
-            return path.Replace('\\', '/');
+            return path.Replace('\\', '/')
+                    .Replace(" ", "\\ ");
         }
 
         private MochaTestResult GetMochaTestResult(string pathToJsonResult)
@@ -192,7 +193,7 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
             }
             catch (Exception ex)
             {
-                throw new Exception("Fuck it! " + ex.Message, ex);
+                throw new Exception(".... " + ex.Message, ex);
             }
         }
     }

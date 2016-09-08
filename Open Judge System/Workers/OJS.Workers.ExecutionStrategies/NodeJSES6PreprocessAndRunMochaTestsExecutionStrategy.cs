@@ -29,7 +29,6 @@
                     $"Mocha not found in: {mochaModulePath}", nameof(mochaModulePath));
             }
 
-            //this.MochaModulePath = mochaModulePath;
             this.MochaModulePath = new FileInfo(mochaModulePath).FullName;
 
             if (!File.Exists(chaiModulePath))

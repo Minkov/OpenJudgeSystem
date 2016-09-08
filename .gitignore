@@ -118,3 +118,8 @@ $tf/
 
 #Visual studio config folder
 .vs/
+
+
+#	NodeJS modules
+
+!node_modules/*/bin

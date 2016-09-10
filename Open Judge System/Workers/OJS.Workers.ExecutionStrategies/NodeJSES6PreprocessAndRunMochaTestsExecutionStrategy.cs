@@ -1,17 +1,16 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
-    using Checkers;
-    using Common;
-    using Executors;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
-    using OJS.Common.Extensions;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
+
+    using Checkers;
+    using Common;
+    using Executors;
+
+    using OJS.Common.Extensions;
+
     public class NodeJSES6PreprocessAndRunMochaTestsExecutionStrategy : ExecutionStrategy
     {
         protected const string UserInputPlaceholder = "#userInput";
@@ -22,7 +21,6 @@
 
         public NodeJSES6PreprocessAndRunMochaTestsExecutionStrategy(string mochaModulePath, string chaiModulePath)
         {
-
             if (!File.Exists(mochaModulePath))
             {
                 throw new ArgumentException(
@@ -118,13 +116,7 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
                 var codeToExecute = this.PreprocessJsSolution(solutionCodeTemplate, executionContext.Code.Trim(), test.Input, index);
 
                 var pathToSolutionFile = FileHelpers.GetTempPath();
-                using (StreamWriter writer = new StreamWriter(pathToSolutionFile))
-                {
-                    writer.WriteLine(codeToExecute);
-                }
-
-                var reporterArg = "--reporter JSON";
-                var pathToResult = FileHelpers.GetTempPath();
+                File.WriteAllText(pathToSolutionFile, codeToExecute);
 
                 var processExecutionResult = executor.Execute(
                     this.MochaModulePath,
@@ -132,22 +124,9 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
                     executionContext.TimeLimit,
                     executionContext.MemoryLimit,
                         new string[] { this.FixPath(pathToSolutionFile) });
-                //new string[] { this.FixPath(pathToSolutionFile), reporterArg, "> " + this.FixPath(pathToResult) });
-
-                //throw new Exception(processExecutionResult.ReceivedOutput);
-
-                //WaitForMochaToUnlockResultFile(pathToResult);
-
-                //var pathToResultCopy = FileHelpers.GetTempPath();
-                //File.Copy(pathToResult, pathToResultCopy);
-
-                //var mochaTestResult = this.GetMochaTestResult(pathToResult);
-
-                //throw new Exception(pathToResult);
 
                 var receivedOutput = "yes";
 
-                //if (mochaTestResult.passes == null || !mochaTestResult.passes.Any())
                 if (processExecutionResult.ReceivedOutput.IndexOf("failing") >= 0)
                 {
                     receivedOutput = processExecutionResult.ReceivedOutput;
@@ -158,42 +137,9 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
 
                 // Clean up the files
                 File.Delete(pathToSolutionFile);
-                try
-                {
-                    File.Delete(pathToResult);
-                }
-                catch
-                {
-
-                }
-                //File.Delete(pathToResultCopy);
             }
 
             return testResults;
-        }
-
-        private static void WaitForMochaToUnlockResultFile(string pathToResult)
-        {
-            while (true)
-            {
-                // Every 100 miliseconds try the file locked by Mocha
-                try
-                {
-                    using (var reader = new StreamReader(File.Open(pathToResult, FileMode.Open, FileAccess.Read)))
-                    {
-                        string result = reader.ReadToEnd();
-                    }
-
-                    break;
-                }
-                catch
-                {
-                    new Task(() =>
-                    {
-                        Thread.Sleep(100);
-                    }).RunSynchronously();
-                }
-            }
         }
 
         private string PreprocessJsSolution(string template, string code, string input, int index)
@@ -205,11 +151,11 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
 
         private string PreprocessJsSubmission(string template, string code)
         {
-            const string replacePlaceholder = "--__pl4c3h0ld3r__;--__pl4c3h0ld3r__;--__pl4c3h0ld3r__;--__pl4c3h0ld3r__;--__pl4c3h0ld3r__;--__pl4c3h0ld3r__;";
-            code = code.Replace("\\\'", replacePlaceholder)
+            string replacePlaceholder = "--__pl4c3h0ld3r__;--__pl4c3h0ld3r__;--__pl4c3h0ld3r__;--__pl4c3h0ld3r__;--__pl4c3h0ld3r__;--__pl4c3h0ld3r__;" + Guid.NewGuid();
+            code = code.Replace("\\", "\\\\")
+                    .Replace("\\\'", replacePlaceholder)
                         .Replace("'", "\"")
                         .Replace("`", "\\`")
-                        .Replace("\\", "\\\\")
                         .Replace(replacePlaceholder, "\\\'");
 
             var processedCode = template
@@ -222,16 +168,6 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
         {
             return path.Replace('\\', '/')
                     .Replace(" ", "\\ ");
-        }
-
-        private MochaTestResult GetMochaTestResult(string pathToJsonResult)
-        {
-            using (var reader = new StreamReader(File.Open(pathToJsonResult, FileMode.Open, FileAccess.Read)))
-            {
-                string json = reader.ReadToEnd();
-                var result = JsonConvert.DeserializeObject<MochaTestResult>(json);
-                return result;
-            }
         }
     }
 }

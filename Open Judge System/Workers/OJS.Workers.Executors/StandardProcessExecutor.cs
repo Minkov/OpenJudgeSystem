@@ -15,6 +15,8 @@
     // TODO: Implement memory constraints
     public class StandardProcessExecutor : IExecutor
     {
+        private const float TimeLimitCoeff = 1.5f;
+
         private static ILog logger;
 
         public StandardProcessExecutor()
@@ -41,7 +43,8 @@
                 WorkingDirectory = workingDirectory
             };
 
-            throw new Exception($"{fileName} {processStartInfo.Arguments}");
+            // For debugging
+            logger.Info($"\"{fileName}\" {processStartInfo.Arguments}");
 
             using (var process = System.Diagnostics.Process.Start(processStartInfo))
             {
@@ -109,7 +112,7 @@
 
                 // Wait the process to complete. Kill it after (timeLimit * 1.5) milliseconds if not completed.
                 // We are waiting the process for more than defined time and after this we compare the process time with the real time limit.
-                var exited = process.WaitForExit((int)(timeLimit * 1.5));
+                var exited = process.WaitForExit((int)(timeLimit * TimeLimitCoeff));
                 if (!exited)
                 {
                     // Double check if the process has exited before killing it

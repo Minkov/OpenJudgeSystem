@@ -108,6 +108,7 @@
                                         .Select(ContestProblemViewModel.FromProblem).OrderBy(x => x.OrderBy).ThenBy(x => x.Name),
                 Results = this.Data.Participants.All()
                     .Where(participant => participant.ContestId == contest.Id && participant.IsOfficial == official)
+                    .OrderBy(x => x.Id)
                     .Select(participant => new ParticipantResultViewModel
                     {
                         ParticipantUsername = participant.User.UserName,

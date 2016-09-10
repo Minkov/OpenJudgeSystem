@@ -91,12 +91,6 @@
     <None Include="Batch Files\StopService.bat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="libs\nodejs-6.5\*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="libs\nodejs-6.5\**\*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -316,7 +310,18 @@
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
   -->
+  <Target Name="AfterBuild">
+    <!--<PropertyGroup>
+      <YourDestinationDirectory>$(OutputPath)libs</YourDestinationDirectory>
+      <YourSourceDirectory>libs</YourSourceDirectory>
+    </PropertyGroup>
+    <CreateItem Include="$(YourSourceDirectory)\**\*.*">
+      <Output TaskParameter="Include" ItemName="YourFilesToCopy" />
+    </CreateItem>
+
+    <Copy SourceFiles="@(YourFilesToCopy)"
+        DestinationFiles="@(YourFilesToCopy->'$(YourDestinationDirectory)\%(RecursiveDir)%(Filename)%(Extension)')" />-->
+
+  </Target>
 </Project>

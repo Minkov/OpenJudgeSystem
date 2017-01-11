@@ -1,2 +1,2 @@
-NET STOP "Stage OJS Local Worker Service"
+NET STOP "OJS Local Worker Service"
 pause

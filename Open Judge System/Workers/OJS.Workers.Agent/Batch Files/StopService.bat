@@ -1,2 +1,2 @@
-NET STOP "Stage OJS Agent Service"
+NET STOP "OJS Agent Service"
 pause

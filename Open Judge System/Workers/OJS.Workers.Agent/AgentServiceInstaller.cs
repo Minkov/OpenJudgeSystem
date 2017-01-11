@@ -19,8 +19,8 @@
             var serviceInstaller = new ServiceInstaller
                                        {
                                            StartType = ServiceStartMode.Automatic,
-                                           DisplayName = "Stage OJS Agent Service",
-                                           ServiceName = "Stage OJS Agent Service",
+                                           DisplayName = "OJS Agent Service",
+                                           ServiceName = "OJS Agent Service",
                                            Description =
                                                "Executes processes in a sandboxed environment. Tasks are received by a controller and executed by this service.",
                                        };

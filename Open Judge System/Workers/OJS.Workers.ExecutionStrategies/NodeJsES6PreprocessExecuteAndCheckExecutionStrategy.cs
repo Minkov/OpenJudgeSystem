@@ -12,11 +12,15 @@
 
     public class NodeJsES6PreprocessExecuteAndCheckExecutionStrategy : ExecutionStrategy
     {
-        protected const string UserInputPlaceholder = "#userInput#";
+        private static readonly Random Rand = new Random();
 
-        protected const string TestArgsPlaceholder = "#testArguments";
+        private readonly string userCodePlaceholderName = $"#userCodePlaceholder-{Rand.Next()}#";
 
-        public NodeJsES6PreprocessExecuteAndCheckExecutionStrategy(string nodeJsExecutablePath)
+        private readonly string argumentsPlaceholderName = $"#argsPlaceholder-{Rand.Next()}#";
+
+        private readonly string timeLimitPlaceholderName = $"#timeLimitPlaceholder-{Rand.Next()}#";
+
+        public NodeJsES6PreprocessExecuteAndCheckExecutionStrategy(string nodeJsExecutablePath, string vm2ModulePath)
         {
             if (!File.Exists(nodeJsExecutablePath))
             {
@@ -24,41 +28,63 @@
                     $"NodeJS not found in: {nodeJsExecutablePath}", nameof(nodeJsExecutablePath));
             }
 
+            if (!File.Exists(vm2ModulePath))
+            {
+                throw new ArgumentException(
+                    $"VM2 lib not found in: {vm2ModulePath}", nameof(vm2ModulePath));
+            }
+
             this.NodeJsExecutablePath = nodeJsExecutablePath;
+            this.Vm2ModulePath = this.FixPath(new FileInfo(vm2ModulePath).FullName);
         }
 
         protected string NodeJsExecutablePath { get; private set; }
+        protected string Vm2ModulePath { get; private set; }
 
         protected virtual string JsCodeTemplate => @"
-var util = require('util');
+const { VM } = require(`" + this.Vm2ModulePath + @"`);
 
-let vm = require('vm'),
-    sandbox,
-    consoleFake = {
-        'logs': [],
-        'log': function(text){
-            this.logs.push(text.toString());
+function getSandboxFunction(codeToExecute) {
+    let funcName = `func${Date.now()}`;
+
+    let code = `
+        let scope = {
+            ${funcName}: (function(){
+                return ${codeToExecute}.bind({});
+            }).call({})
+        };
+        scope.${funcName}(args);
+    `;
+    let timeout = " + this.timeLimitPlaceholderName + @";
+
+    return function(args) {
+        let sandbox = {
+            console: {
+                logs: [],
+                log(msg) {
+                    this.logs.push(msg.toString());
+                }
+            },
+            args
+        };
+
+        const vm = new VM({ timeout, sandbox })
+        let returnValue = vm.run(code);
+        let result = [...sandbox.console.logs];
+        if(typeof returnValue !== `undefined`) {
+            result.push(returnValue);
         }
-    },
-    userCode = " + UserInputPlaceholder + @";
-
-sandbox = {
-    'console': consoleFake,
-    '_____thisIsTheResultHidden': undefined
+        return result;
+    }
 };
 
-sandbox.console.logs =  [];
-vm.createContext(sandbox);
+let code = " + this.userCodePlaceholderName + @"
 
-userCode = `_____thisIsTheResultHidden = (${userCode}([" + TestArgsPlaceholder + @"]))`
+let func = getSandboxFunction(code);
 
-vm.runInNewContext(userCode, sandbox);
-
-if(sandbox['_____thisIsTheResultHidden']) {
-    console.log(sandbox['_____thisIsTheResultHidden']);
-} else {
-    consoleFake.logs.forEach(log => console.log(log));
-}
+let args = [" + this.argumentsPlaceholderName + @"];
+let result = func(args);
+result.forEach(line => console.log(line));
 ";
 
         public override ExecutionResult Execute(ExecutionContext executionContext)
@@ -84,19 +110,23 @@ if(sandbox['_____thisIsTheResultHidden']) {
         {
             var testResults = new List<TestResult>();
 
-            var solutionCodeTemplate = this.PreprocessJsSubmission(this.JsCodeTemplate, executionContext.Code.Trim(';'));
+            var solutionCodeTemplate =
+                    this.PreprocessJsSubmission(this.JsCodeTemplate, executionContext.Code.Trim(';'), executionContext.TimeLimit * 2);
 
             foreach (var test in executionContext.Tests)
             {
-                var codeToExecute = this.PreprocessJsSolution(solutionCodeTemplate, executionContext.Code.Trim(), test.Input);
+                var codeToExecute =
+                        this.PreprocessJsSolution(solutionCodeTemplate, executionContext.Code.Trim(), test.Input);
                 var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
 
-                var processExecutionResult = executor.Execute(this.NodeJsExecutablePath, string.Empty, executionContext.TimeLimit, executionContext.MemoryLimit, new[] { pathToSolutionFile });
+                var processExecutionResult = executor.Execute(
+                    this.NodeJsExecutablePath,
+                    string.Empty,
+                    executionContext.TimeLimit,
+                    executionContext.MemoryLimit,
+                    new[] { pathToSolutionFile });
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, processExecutionResult.ReceivedOutput);
                 testResults.Add(testResult);
-
-                // Clean up the files
-                File.Delete(pathToSolutionFile);
             }
 
             return testResults;
@@ -109,23 +139,33 @@ if(sandbox['_____thisIsTheResultHidden']) {
 
         private string PreprocessJsSolution(string template, string code, string input)
         {
-            input = input
-                    .Replace("\\", "\\\\")
-                    .Replace("\"", "\\\"");
-            var argsString =
-                    string.Join(", ", input.Trim()
-                                           .Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
-                                           .Select(arg => string.Format("\"{0}\"", arg)));
+            var fixedInput = input.Trim()
+                    .Replace("`", "\\`");
+
+            char[] splitters = { '\n', '\r' };
+
+            var argsString = fixedInput.Split(splitters, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(arg => $"`{arg}`");
+
+            var args = string.Join(", ", argsString);
+
             return template
-                    .Replace(TestArgsPlaceholder, argsString);
+                    .Replace(this.argumentsPlaceholderName, args);
         }
 
-        private string PreprocessJsSubmission(string template, string code)
+        private string PreprocessJsSubmission(string template, string code, int timeLimit)
         {
             var processedCode = template
-                .Replace(UserInputPlaceholder, code);
+                .Replace(this.userCodePlaceholderName, code)
+                .Replace(this.timeLimitPlaceholderName, timeLimit.ToString());
 
             return processedCode;
+        }
+
+        private string FixPath(string path)
+        {
+            return path.Replace('\\', '/')
+                    .Replace(" ", "\\ ");
         }
     }
 }

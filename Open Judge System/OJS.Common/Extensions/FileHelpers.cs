@@ -8,14 +8,7 @@
     {
         public static string SaveStringToTempFile(string stringToWrite)
         {
-            string tempFilePath = string.Empty;
-
-            tempFilePath = $"{Path.GetTempPath()}File-{Guid.NewGuid()}.txt";
-
-            if (File.Exists(tempFilePath))
-            {
-                File.Delete(tempFilePath);
-            }
+            var tempFilePath = FileHelpers.GetTempPath();
 
             File.WriteAllText(tempFilePath, stringToWrite);
             return tempFilePath;

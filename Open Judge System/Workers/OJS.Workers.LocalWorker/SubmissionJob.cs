@@ -239,7 +239,7 @@
                     executionStrategy = new CSharpTestRunnerExecutionStrategy(GetCompilerPath);
                     break;
                 case ExecutionStrategyType.NodeJsES6PreprocessExecuteAndCheck:
-                    executionStrategy = new NodeJsES6PreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsExecutablePath);
+                    executionStrategy = new NodeJsES6PreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsExecutablePath, Settings.Vm2ModulePath);
                     break;
                 case ExecutionStrategyType.NodeJSES6PreprocessAndRunMochaTests:
                     executionStrategy = new NodeJSES6PreprocessAndRunMochaTestsExecutionStrategy(Settings.MochaModulePath, Settings.ChaiModulePath);

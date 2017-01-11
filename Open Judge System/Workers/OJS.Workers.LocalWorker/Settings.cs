@@ -26,6 +26,8 @@
 
         public static string NodeJsLegacyExecutablePath => GetSetting("NodeJsLegacyExecutablePath");
 
+        public static string Vm2ModulePath => GetSetting("Vm2ModulePath");
+
         public static string SandboxModulePath => GetSetting("SandboxModulePath");
 
         public static string MochaModulePath => GetSetting("MochaModulePath");

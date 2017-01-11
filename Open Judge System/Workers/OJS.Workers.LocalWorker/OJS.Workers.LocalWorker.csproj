@@ -91,21 +91,28 @@
     <None Include="Batch Files\StopService.bat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="libs\nodejs-6.5\mocha">
+    <None Include="Libs\nodejs\mocha">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="libs\nodejs-6.5\mocha.cmd">
+    <None Include="Libs\nodejs\mocha.cmd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="libs\nodejs-6.5\package.json">
+    <None Include="Libs\nodejs\package.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="libs\nodejs-6.5\_mocha">
+    <None Include="Libs\nodejs\_mocha">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="libs\nodejs-6.5\_mocha.cmd">
+    <None Include="Libs\nodejs\_mocha.cmd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Libs\node_modules\vm2\.npmignore" />
+    <None Include="Libs\node_modules\vm2\bin\vm2" />
+    <None Include="Libs\node_modules\vm2\CHANGELOG.md" />
+    <None Include="Libs\node_modules\vm2\package.json" />
+    <None Include="Libs\node_modules\vm2\README.md" />
+    <None Include="Libs\node_modules\vm2\test\data\json.json" />
+    <None Include="Libs\node_modules\vm2\test\mocha.opts" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -152,9 +159,16 @@
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="libs\nodejs-6.5\node.exe">
+    <Content Include="Libs\nodejs\node.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Libs\node_modules\vm2\index.js" />
+    <Content Include="Libs\node_modules\vm2\lib\cli.js" />
+    <Content Include="Libs\node_modules\vm2\lib\contextify.js" />
+    <Content Include="Libs\node_modules\vm2\lib\main.js" />
+    <Content Include="Libs\node_modules\vm2\lib\sandbox.js" />
+    <Content Include="Libs\node_modules\vm2\test\tests.js" />
+    <Content Include="Templates\nodejs-standart-template.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

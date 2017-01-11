@@ -1,2 +1,2 @@
-NET STOP "OJS Controller Service"
+NET STOP "Stage OJS Controller Service"
 pause

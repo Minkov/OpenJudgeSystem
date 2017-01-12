@@ -134,7 +134,7 @@ result.forEach(line => console.log(line));
 
                 // Clean up
 
-                //File.Delete(pathToSolutionFile);
+                File.Delete(pathToSolutionFile);
             }
 
             return testResults;

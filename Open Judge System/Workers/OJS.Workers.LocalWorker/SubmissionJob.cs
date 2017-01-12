@@ -14,7 +14,7 @@
 
     using ExecutionContext = OJS.Workers.ExecutionStrategies.ExecutionContext;
 
-    public class SubmissionJob : IJob   
+    public class SubmissionJob : IJob
     {
         private readonly ILog logger;
 
@@ -164,16 +164,16 @@
                 AllowedFileExtensions = submission.SubmissionType.AllowedFileExtensions,
                 CompilerType = submission.SubmissionType.CompilerType,
                 MemoryLimit = submission.Problem.MemoryLimit,
-                TimeLimit = submission.Problem.TimeLimit
+                TimeLimit = submission.Problem.TimeLimit,
+                Tests = submission.Problem.Tests.ToList().Select(x => new TestContext
+                {
+                    Id = x.Id,
+                    Input = x.InputDataAsString,
+                    Output = x.OutputDataAsString,
+                    IsTrialTest = x.IsTrialTest
+                })
             };
 
-            context.Tests = submission.Problem.Tests.ToList().Select(x => new TestContext
-            {
-                Id = x.Id,
-                Input = x.InputDataAsString,
-                Output = x.OutputDataAsString,
-                IsTrialTest = x.IsTrialTest
-            });
 
             ExecutionResult executionResult;
             try
@@ -183,7 +183,7 @@
             catch (Exception exception)
             {
                 this.logger.ErrorFormat("executionStrategy.Execute on submission №{0} has thrown an exception: {1}", submission.Id, exception);
-                submission.ProcessingComment = string.Format("Exception in executionStrategy.Execute: {0}", exception.Message);
+                submission.ProcessingComment = $"Exception in executionStrategy.Execute: {exception.Message}";
                 return;
             }
 
@@ -238,15 +238,20 @@
                 case ExecutionStrategyType.CSharpTestRunner:
                     executionStrategy = new CSharpTestRunnerExecutionStrategy(GetCompilerPath);
                     break;
+
+                // Legacy Exection strategy executes Current
+                case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
                 case ExecutionStrategyType.NodeJsES6PreprocessExecuteAndCheck:
                     executionStrategy = new NodeJsES6PreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsExecutablePath, Settings.Vm2ModulePath);
                     break;
                 case ExecutionStrategyType.NodeJSES6PreprocessAndRunMochaTests:
                     executionStrategy = new NodeJSES6PreprocessAndRunMochaTestsExecutionStrategy(Settings.MochaModulePath, Settings.ChaiModulePath);
                     break;
-                case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
-                    executionStrategy = new NodeJsPreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsLegacyExecutablePath);
-                    break;
+
+                // case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
+                // executionStrategy = new NodeJsPreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsLegacyExecutablePath);
+                // break;
+
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha:
                     //executionStrategy = new NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy(
                     //    Settings.NodeJsExecutablePath,

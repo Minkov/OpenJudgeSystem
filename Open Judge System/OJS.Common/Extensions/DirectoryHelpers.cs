@@ -1,4 +1,6 @@
-﻿namespace OJS.Common.Extensions
+﻿using System;
+
+namespace OJS.Common.Extensions
 {
     using System.IO;
 
@@ -6,16 +8,16 @@
     {
         public static string CreateTempDirectory()
         {
-            while (true)
+            var dirName = IOHelpers.GetTempPath("dir");
+            var path = Path.Combine(Path.GetTempPath(), dirName);
+
+            while (Directory.Exists(path))
             {
-                var randomDirectoryName = Path.GetRandomFileName();
-                var path = Path.Combine(Path.GetTempPath(), randomDirectoryName);
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                    return path;
-                }
+                dirName = Path.GetRandomFileName();
+                path = Path.Combine(Path.GetTempPath(), dirName);
             }
+
+            return path;
         }
 
         public static void SafeDeleteDirectory(string path, bool recursive = false)
@@ -23,7 +25,8 @@
             if (Directory.Exists(path))
             {
                 var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-                Directory.EnumerateFileSystemEntries(path, "*", searchOption).ForEach(x => File.SetAttributes(x, FileAttributes.Normal));
+                Directory.EnumerateFileSystemEntries(path, "*", searchOption)
+                    .ForEach(x => File.SetAttributes(x, FileAttributes.Normal));
 
                 Directory.Delete(path, recursive);
             }

@@ -131,6 +131,10 @@ result.forEach(line => console.log(line));
                     new[] { pathToSolutionFile });
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, processExecutionResult.ReceivedOutput);
                 testResults.Add(testResult);
+
+                // Clean up
+
+                //File.Delete(pathToSolutionFile);
             }
 
             return testResults;

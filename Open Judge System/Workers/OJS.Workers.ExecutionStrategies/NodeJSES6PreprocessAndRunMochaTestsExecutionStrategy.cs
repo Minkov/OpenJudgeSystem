@@ -115,8 +115,7 @@ it('Test # " + TestIndexPlaceholder + @"', () => {
 
                 var codeToExecute = this.PreprocessJsSolution(solutionCodeTemplate, executionContext.Code.Trim(), test.Input, index);
 
-                var pathToSolutionFile = FileHelpers.GetTempPath();
-                File.WriteAllText(pathToSolutionFile, codeToExecute);
+                var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
 
                 var processExecutionResult = executor.Execute(
                     this.MochaModulePath,

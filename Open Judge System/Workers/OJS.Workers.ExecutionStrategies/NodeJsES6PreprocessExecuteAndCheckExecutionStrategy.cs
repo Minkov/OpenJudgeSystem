@@ -42,7 +42,7 @@
         protected string Vm2ModulePath { get; private set; }
 
         protected virtual string JsCodeTemplate => @"
-const { VM } = require(`" + this.Vm2ModulePath + @"`);
+const { VM } = require(""" + this.Vm2ModulePath + @""");
 
 function getSandboxFunction(codeToExecute) {
     let funcName = `func${Date.now()}`;
@@ -62,7 +62,11 @@ function getSandboxFunction(codeToExecute) {
             console: {
                 logs: [],
                 log(msg) {
-                    this.logs.push(msg.toString());
+                    if(typeof msg === ""undefined"") {
+                        this.logs.push(""undefined"");
+                    } else {
+                        this.logs.push(msg.toString());
+                    }
                 }
             },
             args
@@ -71,7 +75,7 @@ function getSandboxFunction(codeToExecute) {
         const vm = new VM({ timeout, sandbox })
         let returnValue = vm.run(code);
         let result = [...sandbox.console.logs];
-        if(typeof returnValue !== `undefined`) {
+        if(typeof returnValue !== ""undefined"") {
             result.push(returnValue);
         }
         return result;
@@ -140,12 +144,14 @@ result.forEach(line => console.log(line));
         private string PreprocessJsSolution(string template, string code, string input)
         {
             var fixedInput = input.Trim()
-                    .Replace("`", "\\`");
+                    .Replace(@"\", @"\\")
+                    .Replace(@"""", @"\""")
+                    .Replace("'", "\\'");
 
             char[] splitters = { '\n', '\r' };
 
             var argsString = fixedInput.Split(splitters, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(arg => $"`{arg}`");
+                    .Select(arg => $"\"{arg}\"");
 
             var args = string.Join(", ", argsString);
 

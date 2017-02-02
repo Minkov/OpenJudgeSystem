@@ -45,21 +45,21 @@
 const { VM } = require(""" + this.Vm2ModulePath + @""");
 
 function getSandboxFunction(codeToExecute) {
-    let funcName = `func${Date.now()}`;
+    const funcName = `func${Date.now()}`;
 
-    let code = `
-        let scope = {
+    const code = `
+        const scope = {
             ${funcName}: (function(){
                 return (${codeToExecute}.bind({}));
             }).call({})
         };
         scope.${funcName}(args);
     `;
-    let timeout = " + this.timeLimitPlaceholderName + @";
+    const timeout = " + this.timeLimitPlaceholderName + @";
 
     return function(args) {
 		const result = [];
-        let sandbox = {
+        const sandbox = {
             console: {
                 log(msg) {
                     if(typeof msg === ""undefined"") {
@@ -73,7 +73,7 @@ function getSandboxFunction(codeToExecute) {
         };
 
         const vm = new VM({ timeout, sandbox })
-        let returnValue = vm.run(code);
+        const returnValue = vm.run(code);
         if(typeof returnValue !== ""undefined"") {
             result.push(returnValue);
         }
@@ -81,12 +81,12 @@ function getSandboxFunction(codeToExecute) {
     }
 };
 
-let code = " + this.userCodePlaceholderName + @"
+const code = " + this.userCodePlaceholderName + @"
 
-let func = getSandboxFunction(code);
+const func = getSandboxFunction(code);
 
-let args = [" + this.argumentsPlaceholderName + @"];
-let result = func(args);
+const args = [" + this.argumentsPlaceholderName + @"];
+const result = func(args);
 result.forEach(line => console.log(line));
 ";
 

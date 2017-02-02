@@ -58,14 +58,14 @@ function getSandboxFunction(codeToExecute) {
     let timeout = " + this.timeLimitPlaceholderName + @";
 
     return function(args) {
+		const result = [];
         let sandbox = {
             console: {
-                logs: [],
                 log(msg) {
                     if(typeof msg === ""undefined"") {
-                        this.logs.push(""undefined"");
+                        result.push(""undefined"");
                     } else {
-                        this.logs.push(msg.toString());
+                        result.push(msg.toString());
                     }
                 }
             },
@@ -74,7 +74,6 @@ function getSandboxFunction(codeToExecute) {
 
         const vm = new VM({ timeout, sandbox })
         let returnValue = vm.run(code);
-        let result = [...sandbox.console.logs];
         if(typeof returnValue !== ""undefined"") {
             result.push(returnValue);
         }

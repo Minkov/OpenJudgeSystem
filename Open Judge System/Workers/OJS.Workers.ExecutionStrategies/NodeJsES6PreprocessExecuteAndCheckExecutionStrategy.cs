@@ -50,7 +50,7 @@ function getSandboxFunction(codeToExecute) {
     let code = `
         let scope = {
             ${funcName}: (function(){
-                return ${codeToExecute}.bind({});
+                return (${codeToExecute}.bind({}));
             }).call({})
         };
         scope.${funcName}(args);

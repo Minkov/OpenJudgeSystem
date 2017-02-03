@@ -45,8 +45,6 @@
 const { VM } = require(""" + this.Vm2ModulePath + @""");
 
 function getSandboxFunction(codeToExecute) {
-    const funcName = `func${Date.now()}`;
-
     const code = `
 		(function() {
 			return (${codeToExecute}.bind({}));
@@ -71,7 +69,7 @@ function getSandboxFunction(codeToExecute) {
 
         const vm = new VM({ timeout, sandbox })
         const returnValue = vm.run(code);
-        if(typeof returnValue !== ""undefined"") {
+        if(typeof returnValue !== 'undefined') {
             result.push(returnValue);
         }
         return result;

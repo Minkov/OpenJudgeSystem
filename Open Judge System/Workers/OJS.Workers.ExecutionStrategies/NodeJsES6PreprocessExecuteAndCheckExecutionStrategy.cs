@@ -56,12 +56,8 @@ function getSandboxFunction(codeToExecute) {
 		const result = [];
         const sandbox = {
             console: {
-                log(msg) {
-                    if(typeof msg === ""undefined"") {
-                        result.push(""undefined"");
-                    } else {
-                        result.push(msg.toString());
-                    }
+                log(...msgs) {
+					result.push(msgs);
                 }
             },
             args
@@ -70,7 +66,7 @@ function getSandboxFunction(codeToExecute) {
         const vm = new VM({ timeout, sandbox })
         const returnValue = vm.run(code);
         if(typeof returnValue !== 'undefined') {
-            result.push(returnValue);
+            result.push([returnValue]);
         }
         return result;
     }
@@ -82,7 +78,7 @@ const func = getSandboxFunction(code);
 
 const args = [" + this.argumentsPlaceholderName + @"];
 const result = func(args);
-result.forEach(line => console.log(line));
+result.forEach(line => console.log(...line));
 ";
 
         public override ExecutionResult Execute(ExecutionContext executionContext)

@@ -48,12 +48,9 @@ function getSandboxFunction(codeToExecute) {
     const funcName = `func${Date.now()}`;
 
     const code = `
-        const scope = {
-            ${funcName}: (function(){
-                return (${codeToExecute}.bind({}));
-            }).call({})
-        };
-        scope.${funcName}(args);
+		(function() {
+			return (${codeToExecute}.bind({}));
+		}).call({})(args);
     `;
     const timeout = " + this.timeLimitPlaceholderName + @";
 

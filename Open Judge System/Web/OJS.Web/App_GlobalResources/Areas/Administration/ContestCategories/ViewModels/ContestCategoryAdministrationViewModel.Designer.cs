@@ -71,7 +71,7 @@ namespace Resources.Areas.Administration.ContestCategories.ViewModels {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Accepted length is betweeb {2} and {1} symbols.
+        ///   Looks up a localized string similar to Accepted length is between {2} and {1} symbols.
         /// </summary>
         public static string Name_length {
             get {

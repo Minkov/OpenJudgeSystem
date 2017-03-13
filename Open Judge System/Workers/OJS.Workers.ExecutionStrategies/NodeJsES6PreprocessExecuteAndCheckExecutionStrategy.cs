@@ -45,50 +45,40 @@
 const { VM } = require(""" + this.Vm2ModulePath + @""");
 
 function getSandboxFunction(codeToExecute) {
-    let funcName = `func${Date.now()}`;
-
-    let code = `
-        let scope = {
-            ${funcName}: (function(){
-                return ${codeToExecute}.bind({});
-            }).call({})
-        };
-        scope.${funcName}(args);
+    const code = `
+		(function() {
+			return (${codeToExecute}.bind({}));
+		}).call({})(args);
     `;
-    let timeout = " + this.timeLimitPlaceholderName + @";
+    const timeout = " + this.timeLimitPlaceholderName + @";
 
     return function(args) {
-        let sandbox = {
+		const result = [];
+        const sandbox = {
             console: {
-                logs: [],
-                log(msg) {
-                    if(typeof msg === ""undefined"") {
-                        this.logs.push(""undefined"");
-                    } else {
-                        this.logs.push(msg.toString());
-                    }
+                log(...msgs) {
+					result.push(msgs);
                 }
             },
             args
         };
 
         const vm = new VM({ timeout, sandbox })
-        let returnValue = vm.run(code);
-        let result = [...sandbox.console.logs];
-        if(typeof returnValue !== ""undefined"") {
-            result.push(returnValue);
+        const returnValue = vm.run(code);
+        if(typeof returnValue !== 'undefined') {
+            result.push([returnValue]);
         }
         return result;
     }
 };
 
-let code = " + this.userCodePlaceholderName + @"
+const code = " + this.userCodePlaceholderName + @"
 
-let func = getSandboxFunction(code);
+const func = getSandboxFunction(code);
 
-let args = [" + this.argumentsPlaceholderName + @"];
-let result = func(args);
-result.forEach(line => console.log(line));
+const args = [" + this.argumentsPlaceholderName + @"];
+const result = func(args);
+result.forEach(line => console.log(...line));
 ";
 
         public override ExecutionResult Execute(ExecutionContext executionContext)

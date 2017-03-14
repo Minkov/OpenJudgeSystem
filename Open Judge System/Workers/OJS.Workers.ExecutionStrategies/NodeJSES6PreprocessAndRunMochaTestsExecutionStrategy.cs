@@ -43,7 +43,7 @@ const { expect } = require(""" + this.ChaiModulePath + @""");
 
 function getSandboxFunction(codeToExecute) {
     const code = `
-		(function() {
+		const result = (function() {
 			return (${codeToExecute}.bind({}));
 		}).call({})();
 

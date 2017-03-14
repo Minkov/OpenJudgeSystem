@@ -245,7 +245,7 @@
                     executionStrategy = new NodeJsES6PreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsExecutablePath, Settings.Vm2ModulePath);
                     break;
                 case ExecutionStrategyType.NodeJSES6PreprocessAndRunMochaTests:
-                    executionStrategy = new NodeJSES6PreprocessAndRunMochaTestsExecutionStrategy(Settings.MochaModulePath, Settings.ChaiModulePath);
+                    executionStrategy = new NodeJSES6PreprocessAndRunMochaTestsExecutionStrategy(Settings.NodeJsExecutablePath, Settings.Vm2ModulePath, Settings.MochaModulePath, Settings.ChaiModulePath);
                     break;
 
                 // case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
@@ -257,7 +257,7 @@
                     //    Settings.NodeJsExecutablePath,
                     //    Settings.MochaModulePath,
                     //    Settings.ChaiModulePath);
-                    executionStrategy = new NodeJSES6PreprocessAndRunMochaTestsExecutionStrategy(Settings.MochaModulePath, Settings.ChaiModulePath);
+                    executionStrategy = new NodeJSES6PreprocessAndRunMochaTestsExecutionStrategy(Settings.NodeJsExecutablePath, Settings.Vm2ModulePath, Settings.MochaModulePath, Settings.ChaiModulePath);
                     break;
                 case ExecutionStrategyType.IoJsPreprocessExecuteAndRunJsDomUnitTests:
                     executionStrategy = new IoJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy(

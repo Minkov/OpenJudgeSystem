@@ -24,14 +24,13 @@
                     $"Mocha not found in: {mochaModulePath}", nameof(mochaModulePath));
             }
 
-            this.MochaModulePath = new FileInfo(mochaModulePath).FullName;
-
             if (!File.Exists(chaiModulePath))
             {
                 throw new ArgumentException(
                     $"Chai not found in: {chaiModulePath}", nameof(chaiModulePath));
             }
 
+            this.MochaModulePath = new FileInfo(mochaModulePath).FullName.Replace(" ", "\" \"");
             this.ChaiModulePath = this.FixPath(new FileInfo(chaiModulePath).FullName);
         }
 

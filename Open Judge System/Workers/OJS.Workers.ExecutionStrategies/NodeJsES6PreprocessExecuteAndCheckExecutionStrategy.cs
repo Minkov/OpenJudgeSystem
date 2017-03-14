@@ -12,11 +12,11 @@
 
     public class NodeJsES6PreprocessExecuteAndCheckExecutionStrategy : ExecutionStrategy
     {
-        private static readonly Random Rand = new Random();
+        protected static readonly Random Rand = new Random();
 
-        private readonly string userCodePlaceholderName = $"#userCodePlaceholder-{Rand.Next()}#";
+        protected readonly string userCodePlaceholderName = $"#userCodePlaceholder-{Rand.Next()}#";
 
-        private readonly string argumentsPlaceholderName = $"#argsPlaceholder-{Rand.Next()}#";
+        protected readonly string argumentsPlaceholderName = $"#argsPlaceholder-{Rand.Next()}#";
 
         private readonly string timeLimitPlaceholderName = $"#timeLimitPlaceholder-{Rand.Next()}#";
 
@@ -153,7 +153,7 @@ result.forEach(line => console.log(...line));
                     .Replace(this.argumentsPlaceholderName, args);
         }
 
-        private string PreprocessJsSubmission(string template, string code, int timeLimit)
+        protected string PreprocessJsSubmission(string template, string code, int timeLimit)
         {
             var processedCode = template
                 .Replace(this.userCodePlaceholderName, code)
@@ -162,7 +162,7 @@ result.forEach(line => console.log(...line));
             return processedCode;
         }
 
-        private string FixPath(string path)
+        protected string FixPath(string path)
         {
             return path.Replace('\\', '/')
                     .Replace(" ", "\\ ");

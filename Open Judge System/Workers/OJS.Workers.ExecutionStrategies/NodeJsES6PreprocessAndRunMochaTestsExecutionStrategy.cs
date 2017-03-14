@@ -11,11 +11,11 @@
 
     using OJS.Common.Extensions;
 
-    public class NodeJSES6PreprocessAndRunMochaTestsExecutionStrategy : NodeJsES6PreprocessExecuteAndCheckExecutionStrategy
+    public class NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy : NodeJsES6PreprocessExecuteAndCheckExecutionStrategy
     {
 		protected readonly string testIndexPlaceholder = $"#testIndexPlaceholder-{Rand.Next()}#";
 
-        public NodeJSES6PreprocessAndRunMochaTestsExecutionStrategy(string nodeJsExecutablePath, string vm2ModulePath, string mochaModulePath, string chaiModulePath)
+        public NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy(string nodeJsExecutablePath, string vm2ModulePath, string mochaModulePath, string chaiModulePath)
 			: base(nodeJsExecutablePath, vm2ModulePath)
         {
             if (!File.Exists(mochaModulePath))

@@ -198,6 +198,18 @@
                                               },
                                           new SubmissionType
                                               {
+                                                  Name = "JavaScript code (ES2015) (DOM unit tests)",
+                                                  CompilerType = CompilerType.None,
+                                                  AdditionalCompilerArguments = "-R json",
+                                                  ExecutionStrategyType =
+                                                      ExecutionStrategyType
+                                                      .NodeJsES6PreprocessAndRunDomTests,
+                                                  IsSelectedByDefault = false,
+                                                  AllowedFileExtensions = null,
+                                                  AllowBinaryFilesUpload = false,
+                                              },
+                                          new SubmissionType
+                                              {
                                                   Name = "C# project/solution",
                                                   CompilerType = CompilerType.MsBuild,
                                                   AdditionalCompilerArguments =

@@ -247,6 +247,19 @@
                 case ExecutionStrategyType.NodeJsES6PreprocessAndRunMochaTests:
                     executionStrategy = new NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy(Settings.NodeJsExecutablePath, Settings.Vm2ModulePath, Settings.MochaModulePath, Settings.ChaiModulePath);
                     break;
+                case ExecutionStrategyType.NodeJsES6PreprocessAndRunDomTests:
+                    executionStrategy = new NodeJsES6PreprocessAndRunDomTestsExecutionStrategy(
+                        Settings.NodeJsExecutablePath,
+                        Settings.Vm2ModulePath,
+                        Settings.MochaModulePath,
+                        Settings.ChaiModulePath,
+                        Settings.JsDomModulePath,
+                        Settings.JQueryModulePath,
+                        Settings.HandlebarsModulePath,
+                        Settings.SinonModulePath,
+                        Settings.SinonChaiModulePath,
+                        Settings.UnderscoreModulePath);
+                    break;
 
                 // case ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck:
                 // executionStrategy = new NodeJsPreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsLegacyExecutablePath);

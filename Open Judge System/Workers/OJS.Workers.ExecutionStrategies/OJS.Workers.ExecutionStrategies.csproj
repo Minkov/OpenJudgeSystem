@@ -68,6 +68,7 @@
     <Compile Include="JavaZipFileCompileExecuteAndCheckExecutionStrategy.cs" />
     <Compile Include="JsonExecutionResult.cs" />
     <Compile Include="IoJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy.cs" />
+    <Compile Include="NodeJsES6PreprocessAndRunDomTestsExecutionStrategy.cs" />
     <Compile Include="NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy.cs" />
     <Compile Include="NodeJsES6PreprocessExecuteAndCheckExecutionStrategy.cs" />
     <Compile Include="NodeJsPreprocessExecuteAndCheckExecutionStrategy.cs" />

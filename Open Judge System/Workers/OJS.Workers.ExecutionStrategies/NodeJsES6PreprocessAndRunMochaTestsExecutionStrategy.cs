@@ -117,7 +117,7 @@ getSandboxFunction(code)();
             return testResults;
         }
 
-        private string PreprocessJsSolution(string template, string code, string input, int index)
+        protected string PreprocessJsSolution(string template, string code, string input, int index)
         {
             return template
                     .Replace(this.argumentsPlaceholderName, input.Trim())

@@ -15,6 +15,7 @@
         PythonExecuteAndCheck = 11,
         PhpCgiExecuteAndCheck = 5,
         PhpCliExecuteAndCheck = 6,
-        NodeJsES6PreprocessAndRunMochaTests = 201
+        NodeJsES6PreprocessAndRunMochaTests = 201,
+        NodeJsES6PreprocessAndRunDomTests = 202
     }
 }

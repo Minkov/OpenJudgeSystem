@@ -47,7 +47,9 @@ function getSandboxFunction(codeToExecute) {
 			return (${codeToExecute}.bind({}));
 		}).call({})();
 
-		it('Test # " + this.testIndexPlaceholder + @"', () => {" + this.argumentsPlaceholderName + @"});
+		it('Test # " + this.testIndexPlaceholder + @"', () => {
+" + this.argumentsPlaceholderName + @"
+		});
     `;
     const timeout = " + this.timeLimitPlaceholderName + @";
 

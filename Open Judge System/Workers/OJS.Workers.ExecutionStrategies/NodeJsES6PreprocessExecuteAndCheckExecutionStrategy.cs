@@ -18,7 +18,7 @@
 
         protected readonly string argumentsPlaceholderName = $"#argsPlaceholder-{Rand.Next()}#";
 
-        private readonly string timeLimitPlaceholderName = $"#timeLimitPlaceholder-{Rand.Next()}#";
+        protected readonly string timeLimitPlaceholderName = $"#timeLimitPlaceholder-{Rand.Next()}#";
 
         public NodeJsES6PreprocessExecuteAndCheckExecutionStrategy(string nodeJsExecutablePath, string vm2ModulePath)
         {

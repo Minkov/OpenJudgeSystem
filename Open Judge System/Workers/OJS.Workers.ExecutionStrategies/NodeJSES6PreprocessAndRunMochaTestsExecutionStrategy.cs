@@ -39,33 +39,31 @@
         protected string ChaiModulePath { get; private set; }
 
         protected virtual string JsCodeTemplate => @"
-let util = require('util');
-const expect = require('" + this.ChaiModulePath + @"').expect;
-let vm = require('vm'),
-    sandbox,
-    consoleFake = {
-        'logs': [],
-        'log': function(text){
-            this.logs.push(text.toString());
-        }
-    },
-    userCode = `_____thisIsTheResultHidden = " + this.userCodePlaceholderName + @".bind({})()`;
+const { VM } = require('" + this.Vm2ModulePath + @"');
+const { expect } = require('" + this.ChaiModulePath + @"');
 
-sandbox = {
-    'console': consoleFake,
-    '_____thisIsTheResultHidden': undefined
+function getSandboxFunction(codeToExecute) {
+    const code = `
+		(function() {
+			return (${codeToExecute}.bind({}));
+		}).call({})();
+
+		it('Test # " + this.testIndexPlaceholder + @"', () => {" + this.argumentsPlaceholderName + @"});
+    `;
+    const timeout = " + this.timeLimitPlaceholderName + @";
+
+    return function() {
+        const sandbox = {
+			it, expect
+        };
+
+        const vm = new VM({ timeout, sandbox })
+        const returnValue = vm.run(code);
+    }
 };
 
-sandbox.console.logs =  [];
-vm.createContext(sandbox);
-
-vm.runInNewContext(userCode, sandbox);
-
-var result = sandbox['_____thisIsTheResultHidden'];
-
-it('Test # " + this.testIndexPlaceholder + @"', () => {
-    " + this.argumentsPlaceholderName + @"
-});
+const code = " + this.userCodePlaceholderName + @"
+getSandboxFunction(code)();
 ";
 
         protected virtual List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker)

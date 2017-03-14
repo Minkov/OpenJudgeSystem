@@ -95,11 +95,11 @@ it('Test # " + this.testIndexPlaceholder + @"', () => {
                 var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
 
                 var processExecutionResult = executor.Execute(
-                    this.MochaModulePath,
+                    this.NodeJsExecutablePath,
                     string.Empty,
                     executionContext.TimeLimit,
                     executionContext.MemoryLimit,
-                        new string[] { this.FixPath(pathToSolutionFile) });
+                        new string[] { this.MochaModulePath, this.FixPath(pathToSolutionFile) });
 
                 var receivedOutput = "yes";
 

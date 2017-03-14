@@ -38,7 +38,7 @@
         protected string MochaModulePath { get; private set; }
         protected string ChaiModulePath { get; private set; }
 
-        protected virtual string JsCodeTemplate => @"
+        protected override string JsCodeTemplate => @"
 const { VM } = require('" + this.Vm2ModulePath + @"');
 const { expect } = require('" + this.ChaiModulePath + @"');
 
@@ -66,7 +66,7 @@ const code = " + this.userCodePlaceholderName + @"
 getSandboxFunction(code)();
 ";
 
-        protected virtual List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker)
+        protected override List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker)
         {
             var testResults = new List<TestResult>();
 

@@ -63,7 +63,7 @@ function getSandboxFunction(codeToExecute) {
             args
         };
 
-        const vm = new VM({ timeout, sandbox })
+        const vm = new VM({ timeout, sandbox });
         const returnValue = vm.run(code);
         if(typeof returnValue !== 'undefined') {
             result.push([returnValue]);

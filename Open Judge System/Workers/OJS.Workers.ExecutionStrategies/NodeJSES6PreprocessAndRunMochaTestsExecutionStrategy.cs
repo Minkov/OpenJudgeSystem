@@ -16,7 +16,7 @@
 		protected readonly string testIndexPlaceholder = $"#testIndexPlaceholder-{Rand.Next()}#";
 
         public NodeJSES6PreprocessAndRunMochaTestsExecutionStrategy(string nodeJsExecutablePath, string vm2ModulePath, string mochaModulePath, string chaiModulePath)
-			: base(nodeJsExecutablePath, mochaModulePath)
+			: base(nodeJsExecutablePath, vm2ModulePath)
         {
             if (!File.Exists(mochaModulePath))
             {
@@ -38,8 +38,8 @@
         protected string ChaiModulePath { get; private set; }
 
         protected override string JsCodeTemplate => @"
-const { VM } = require('" + this.Vm2ModulePath + @"');
-const { expect } = require('" + this.ChaiModulePath + @"');
+const { VM } = require(""" + this.Vm2ModulePath + @""");
+const { expect } = require(""" + this.ChaiModulePath + @""");
 
 function getSandboxFunction(codeToExecute) {
     const code = `
@@ -56,7 +56,7 @@ function getSandboxFunction(codeToExecute) {
 			it, expect
         };
 
-        const vm = new VM({ timeout, sandbox })
+        const vm = new VM({ timeout, sandbox });
         const returnValue = vm.run(code);
     }
 };

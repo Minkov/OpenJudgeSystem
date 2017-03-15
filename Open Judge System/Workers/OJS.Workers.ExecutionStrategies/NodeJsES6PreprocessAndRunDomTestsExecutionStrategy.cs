@@ -13,6 +13,18 @@
 
     public class NodeJsES6PreprocessAndRunDomTestsExecutionStrategy : NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy
     {
+		private readonly string jsDomModulePath;
+
+		private readonly string jQueryModulePath;
+
+		private readonly string handlebarsModulePath;
+
+		private readonly string sinonModulePath;
+
+		private readonly string sinonChaiModulePath;
+
+		private readonly string underscoreModulePath;
+
         public NodeJsES6PreprocessAndRunDomTestsExecutionStrategy(
 			string nodeJsExecutablePath,
 			string vm2ModulePath,
@@ -61,20 +73,61 @@
 					$"Underscore not found in: {underscoreModulePath}", nameof(underscoreModulePath));
 			}
 
-			this.JsDomModulePath = this.FixPath(new FileInfo(jsDomModulePath).FullName);
-			this.JQueryModulePath = this.FixPath(new FileInfo(jQueryModulePath).FullName);
-			this.HandlebarsModulePath = this.FixPath(new FileInfo(handlebarsModulePath).FullName);
-			this.SinonModulePath = this.FixPath(new FileInfo(sinonModulePath).FullName);
-			this.SinonChaiModulePath = this.FixPath(new FileInfo(sinonChaiModulePath).FullName);
-			this.UnderscoreModulePath = this.FixPath(new FileInfo(underscoreModulePath).FullName);
+			this.jsDomModulePath = this.FixPath(new FileInfo(jsDomModulePath).FullName);
+			this.jQueryModulePath = this.FixPath(new FileInfo(jQueryModulePath).FullName);
+			this.handlebarsModulePath = this.FixPath(new FileInfo(handlebarsModulePath).FullName);
+			this.sinonModulePath = this.FixPath(new FileInfo(sinonModulePath).FullName);
+			this.sinonChaiModulePath = this.FixPath(new FileInfo(sinonChaiModulePath).FullName);
+			this.underscoreModulePath = this.FixPath(new FileInfo(underscoreModulePath).FullName);
         }
 
-		protected string JsDomModulePath { get; private set; }
-		protected string JQueryModulePath { get; private set; }
-		protected string HandlebarsModulePath { get; private set; }
-		protected string SinonModulePath { get; private set; }
-		protected string SinonChaiModulePath { get; private set; }
-		protected string UnderscoreModulePath { get; private set; }
+		protected string JsDomModulePath
+		{
+			get
+			{
+				return this.jsDomModulePath;
+			}
+		}
+
+		protected string JQueryModulePath
+		{
+			get
+			{
+				return this.jQueryModulePath;
+			}
+		}
+
+		protected string HandlebarsModulePath
+		{
+			get
+			{
+				return this.handlebarsModulePath;
+			}
+		}
+
+		protected string SinonModulePath
+		{
+			get
+			{
+				return this.sinonModulePath;
+			}
+		}
+
+		protected string SinonChaiModulePath
+		{
+			get
+			{
+				return this.sinonChaiModulePath;
+			}
+		}
+
+		protected string UnderscoreModulePath
+		{
+			get
+			{
+				return this.underscoreModulePath;
+			}
+		}
 
 		protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @"
 const { jsdom } = require(""" + this.JsDomModulePath + @"""),
@@ -82,12 +135,13 @@ const { jsdom } = require(""" + this.JsDomModulePath + @"""),
 	window = document.defaultView;
 const $ = require(""" + this.JQueryModulePath + @""")(window);
 
+const handlebars = require(""" + this.HandlebarsModulePath + @""");
+
 const sinon = require(""" + this.SinonModulePath + @""");
 const sinonChai = require(""" + this.SinonChaiModulePath + @""");
 chai.use(sinonChai);
 
 const _ = require(""" + this.UnderscoreModulePath + @""");
-const handlebars = require(""" + this.HandlebarsModulePath + @""");
 ";
 
         protected override string JsCodeTemplate => this.JsCodeRequiredModules + @"

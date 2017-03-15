@@ -15,6 +15,10 @@
     {
 		protected readonly string testIndexPlaceholder = $"#testIndexPlaceholder-{Rand.Next()}#";
 
+		private readonly string mochaModulePath;
+
+		private readonly string chaiModulePath;
+
         public NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy(string nodeJsExecutablePath, string vm2ModulePath, string mochaModulePath, string chaiModulePath)
 			: base(nodeJsExecutablePath, vm2ModulePath)
         {
@@ -30,12 +34,26 @@
                     $"Chai not found in: {chaiModulePath}", nameof(chaiModulePath));
             }
 
-            this.MochaModulePath = new FileInfo(mochaModulePath).FullName.Replace(" ", "\" \"");
-            this.ChaiModulePath = this.FixPath(new FileInfo(chaiModulePath).FullName);
+            this.mochaModulePath = new FileInfo(mochaModulePath).FullName.Replace(" ", "\" \"");
+            this.chaiModulePath = this.FixPath(new FileInfo(chaiModulePath).FullName);
         }
 
-        protected string MochaModulePath { get; private set; }
-        protected string ChaiModulePath { get; private set; }
+        protected string MochaModulePath
+		{
+			get
+			{
+				return this.mochaModulePath;
+			}
+		}
+
+        protected string ChaiModulePath
+		{
+			get
+			{
+				return this.chaiModulePath;
+			}
+		}
+
 
 		protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @"
 const chai = require(""" + this.ChaiModulePath + @"""),

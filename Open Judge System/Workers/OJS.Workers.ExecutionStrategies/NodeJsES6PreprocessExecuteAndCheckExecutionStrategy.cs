@@ -20,6 +20,9 @@
 
         protected readonly string timeLimitPlaceholderName = $"#timeLimitPlaceholder-{Rand.Next()}#";
 
+        private readonly string nodeJsExecutablePath;
+        private readonly string vm2ModulePath;
+
         public NodeJsES6PreprocessExecuteAndCheckExecutionStrategy(string nodeJsExecutablePath, string vm2ModulePath)
         {
             if (!File.Exists(nodeJsExecutablePath))
@@ -34,12 +37,25 @@
                     $"VM2 lib not found in: {vm2ModulePath}", nameof(vm2ModulePath));
             }
 
-            this.NodeJsExecutablePath = nodeJsExecutablePath;
-            this.Vm2ModulePath = this.FixPath(new FileInfo(vm2ModulePath).FullName);
+            this.nodeJsExecutablePath = nodeJsExecutablePath;
+            this.vm2ModulePath = this.FixPath(new FileInfo(vm2ModulePath).FullName);
         }
 
-        protected string NodeJsExecutablePath { get; private set; }
-        protected string Vm2ModulePath { get; private set; }
+        protected string NodeJsExecutablePath
+		{
+			get
+			{
+				return this.nodeJsExecutablePath;
+			}
+		}
+
+        protected string Vm2ModulePath
+		{
+			get
+			{
+				return this.vm2ModulePath;
+			}
+		}
 
 		protected virtual string JsCodeRequiredModules => @"
 const { VM } = require(""" + this.Vm2ModulePath + @""");

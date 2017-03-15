@@ -5,10 +5,11 @@
     using System.IO;
     using System.Linq;
 
+    using Checkers;
+    using Common;
+    using Executors;
+
     using OJS.Common.Extensions;
-    using OJS.Workers.Checkers;
-    using OJS.Workers.Common;
-    using OJS.Workers.Executors;
 
     public class NodeJsES6PreprocessExecuteAndCheckExecutionStrategy : ExecutionStrategy
     {

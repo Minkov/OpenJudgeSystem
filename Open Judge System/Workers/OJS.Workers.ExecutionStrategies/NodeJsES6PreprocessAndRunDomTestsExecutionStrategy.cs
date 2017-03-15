@@ -1,15 +1,7 @@
 ﻿namespace OJS.Workers.ExecutionStrategies
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
-
-    using Checkers;
-    using Common;
-    using Executors;
-
-    using OJS.Common.Extensions;
 
     public class NodeJsES6PreprocessAndRunDomTestsExecutionStrategy : NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy
     {

@@ -37,10 +37,12 @@
         protected string MochaModulePath { get; private set; }
         protected string ChaiModulePath { get; private set; }
 
-        protected override string JsCodeTemplate => @"
-const { VM } = require(""" + this.Vm2ModulePath + @""");
-const { expect } = require(""" + this.ChaiModulePath + @""");
+		protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @"
+const chai = require(""" + this.ChaiModulePath + @"""),
+	{ expect } = chai;
+";
 
+        protected override string JsCodeTemplate => this.JsCodeRequiredModules + @"
 function getSandboxFunction(codeToExecute) {
     const code = `
 		const result = (function() {

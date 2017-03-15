@@ -41,9 +41,10 @@
         protected string NodeJsExecutablePath { get; private set; }
         protected string Vm2ModulePath { get; private set; }
 
-        protected virtual string JsCodeTemplate => @"
+		protected virtual string JsCodeRequiredModules => @"
 const { VM } = require(""" + this.Vm2ModulePath + @""");
-
+";
+        protected virtual string JsCodeTemplate => this.JsCodeRequiredModules + @"
 function getSandboxFunction(codeToExecute) {
     const code = `
 		(function() {

@@ -76,11 +76,7 @@
 		protected string SinonChaiModulePath { get; private set; }
 		protected string UnderscoreModulePath { get; private set; }
 
-        protected override string JsCodeTemplate => @"
-const { VM } = require(""" + this.Vm2ModulePath + @""");
-const chai = require(""" + this.ChaiModulePath + @"""),
-	{ expect } = chai;
-
+		protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @"
 const { jsdom } = require(""" + this.JsDomModulePath + @"""),
 	document = jsdom('<html></html>', {}),
 	window = document.defaultView;
@@ -92,7 +88,9 @@ chai.use(sinonChai);
 
 const _ = require(""" + this.UnderscoreModulePath + @""");
 const handlebars = require(""" + this.HandlebarsModulePath + @""");
+";
 
+        protected override string JsCodeTemplate => this.JsCodeRequiredModules + @"
 function getSandboxFunction(codeToExecute) {
     const code = `
 		const result = (function() {

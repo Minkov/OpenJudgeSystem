@@ -7,6 +7,9 @@
 
     using Common;
 
+	using Newtonsoft.Json;
+	using Newtonsoft.Json.Linq;
+
     using OJS.Common.Extensions;
 
     public class NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy : NodeJsES6PreprocessExecuteAndCheckExecutionStrategy
@@ -56,7 +59,7 @@ const chai = require(""" + this.ChaiModulePath + @"""),
 	{ expect } = chai;
 ";
 
-        protected virtual string GetJsCodeTemplate(string userCode, int timeLimit, string arguments, int index)
+        protected override string GetJsCodeTemplate(string userCode, int timeLimit, string arguments)
 		{
 			return this.JsCodeRequiredModules + @"
 function getSandboxFunction(codeToExecute) {
@@ -65,9 +68,7 @@ function getSandboxFunction(codeToExecute) {
 			return (${codeToExecute}.bind({}));
 		}).call({})();
 
-		it('Test # " + 42 + @"', () => {
 " + arguments + @"
-		});
     `;
     const timeout = " + timeLimit + @";
 
@@ -90,53 +91,49 @@ getSandboxFunction(code)();
         {
             var testResults = new List<TestResult>();
 
-            var indexRegular = 1;
-            var indexTrial = 1;
-            var tests = executionContext.Tests.ToList();
-            for (var i = 0; i < tests.Count; i++)
-            {
-                var test = tests[i];
-                var index = test.IsTrialTest ? indexTrial : indexRegular;
-                if (test.IsTrialTest)
-                {
-                    ++indexTrial;
-                }
-                else
-                {
-                    ++indexRegular;
-                }
+			var testStrings = executionContext.Tests
+				.Select(test => @"
+it('Test', () => {
+" + test.Input + @"
+});
+");
 
-                var codeToExecute = this.PreprocessJsSolution(executionContext.Code.Trim(), executionContext.TimeLimit * 2, test.Input, index);
+			var tests = string.Join("", testStrings);
 
-                var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
+			var codeToExecute = this.PreprocessJsSolution(executionContext.Code.Trim(';'), executionContext.TimeLimit * 2, tests);
 
-                var processExecutionResult = executor.Execute(
-                    this.NodeJsExecutablePath,
-                    string.Empty,
-                    executionContext.TimeLimit,
-                    executionContext.MemoryLimit,
-                        new string[] { this.MochaModulePath, this.FixPath(pathToSolutionFile) });
+			var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
 
-                var receivedOutput = "yes";
+			var processExecutionResult = executor.Execute(
+				this.NodeJsExecutablePath,
+				string.Empty,
+				executionContext.TimeLimit,
+				executionContext.MemoryLimit,
+				new string[] { this.MochaModulePath, this.FixPath(pathToSolutionFile), "-R", "json" });
 
-                if (processExecutionResult.ReceivedOutput.IndexOf("failing") >= 0)
-                {
-                    receivedOutput = processExecutionResult.ReceivedOutput;
-                }
+			var testJsonResults = JsonConvert.DeserializeObject<JObject>(processExecutionResult.ReceivedOutput)["tests"];
 
-                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, receivedOutput);
+			var testsList = executionContext.Tests.ToList();
+
+			for (int i = 0; i < testsList.Count; ++i)
+			{
+				var test = testsList[i];
+
+                var receivedOutput = testJsonResults[i]["err"]["message"] ?? "yes";
+
+                var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, receivedOutput.ToString());
                 testResults.Add(testResult);
-
-                // Clean up the files
-                File.Delete(pathToSolutionFile);
             }
+
+			// Clean up the files
+			File.Delete(pathToSolutionFile);
 
             return testResults;
         }
 
-        protected string PreprocessJsSolution(string code, int timeLimit, string input, int index)
+        protected string PreprocessJsSolution(string code, int timeLimit, string input)
         {
-            return this.GetJsCodeTemplate(code, timeLimit, input.Trim(), index);
+            return this.GetJsCodeTemplate(code, timeLimit, input.Trim());
         }
     }
 }

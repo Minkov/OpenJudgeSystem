@@ -136,7 +136,7 @@ chai.use(sinonChai);
 const _ = require(""" + this.UnderscoreModulePath + @""");
 ";
 
-        protected override string GetJsCodeTemplate(string userCode, int timeLimit, string arguments, int index)
+        protected override string GetJsCodeTemplate(string userCode, int timeLimit, string arguments)
 		{
 			return this.JsCodeRequiredModules + @"
 function getSandboxFunction(codeToExecute) {
@@ -145,9 +145,7 @@ function getSandboxFunction(codeToExecute) {
 			return (${codeToExecute}.bind({}));
 		}).call({})();
 
-		it('Test # " + index + @"', () => {
 " + arguments + @"
-		});
     `;
     const timeout = " + timeLimit + @";
 

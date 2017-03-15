@@ -69,10 +69,6 @@
 			this.UnderscoreModulePath = this.FixPath(new FileInfo(underscoreModulePath).FullName);
         }
 
-		protected string NodeJsExecutablePath { get; private set; }
-		protected string Vm2ModulePath { get; private set; }
-		protected string MochaModulePath { get; private set; }
-		protected string ChaiModulePath { get; private set; }
 		protected string JsDomModulePath { get; private set; }
 		protected string JQueryModulePath { get; private set; }
 		protected string HandlebarsModulePath { get; private set; }
@@ -82,7 +78,20 @@
 
         protected override string JsCodeTemplate => @"
 const { VM } = require(""" + this.Vm2ModulePath + @""");
-const { expect } = require(""" + this.ChaiModulePath + @""");
+const chai = require(""" + this.ChaiModulePath + @"""),
+	{ expect } = chai;
+
+const { jsdom } = require(""" + this.JsDomModulePath + @"""),
+	document = jsdom('<html></html>', {}),
+	window = document.defaultView;
+const $ = require(""" + this.JQueryModulePath + @""")(window);
+
+const sinon = require(""" + this.SinonModulePath + @""");
+const sinonChai = require(""" + this.SinonChaiModulePath + @""");
+chai.use(sinonChai);
+
+const _ = require(""" + this.UnderscoreModulePath + @""");
+const handlebars = require(""" + this.HandlebarsModulePath + @""");
 
 function getSandboxFunction(codeToExecute) {
     const code = `
@@ -98,7 +107,9 @@ function getSandboxFunction(codeToExecute) {
 
     return function() {
         const sandbox = {
-			it, expect
+			it, expect,
+			document, window, $,
+			sinon, handlebars, _
         };
 
         const vm = new VM({ timeout, sandbox });

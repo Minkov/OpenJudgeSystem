@@ -11,8 +11,6 @@
 
     public class NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy : NodeJsES6PreprocessExecuteAndCheckExecutionStrategy
     {
-		protected readonly string testIndexPlaceholder = $"#testIndexPlaceholder-{Rand.Next()}#";
-
 		private readonly string mochaModulePath;
 
 		private readonly string chaiModulePath;
@@ -58,18 +56,20 @@ const chai = require(""" + this.ChaiModulePath + @"""),
 	{ expect } = chai;
 ";
 
-        protected override string JsCodeTemplate => this.JsCodeRequiredModules + @"
+        protected virtual string GetJsCodeTemplate(string userCode, int timeLimit, string arguments, int index)
+		{
+			return this.JsCodeRequiredModules + @"
 function getSandboxFunction(codeToExecute) {
     const code = `
 		const result = (function() {
 			return (${codeToExecute}.bind({}));
 		}).call({})();
 
-		it('Test # " + this.testIndexPlaceholder + @"', () => {
-" + this.argumentsPlaceholderName + @"
+		it('Test # " + 42 + @"', () => {
+" + arguments + @"
 		});
     `;
-    const timeout = " + this.timeLimitPlaceholderName + @";
+    const timeout = " + timeLimit + @";
 
     return function() {
         const sandbox = {
@@ -81,15 +81,14 @@ function getSandboxFunction(codeToExecute) {
     }
 };
 
-const code = " + this.userCodePlaceholderName + @"
+const code = " + userCode + @"
 getSandboxFunction(code)();
 ";
+		}
 
         protected override List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker)
         {
             var testResults = new List<TestResult>();
-
-            var solutionCodeTemplate = this.PreprocessJsSubmission(this.JsCodeTemplate, executionContext.Code.Trim(';'), executionContext.TimeLimit * 2);
 
             var indexRegular = 1;
             var indexTrial = 1;
@@ -107,7 +106,7 @@ getSandboxFunction(code)();
                     ++indexRegular;
                 }
 
-                var codeToExecute = this.PreprocessJsSolution(solutionCodeTemplate, executionContext.Code.Trim(), test.Input, index);
+                var codeToExecute = this.PreprocessJsSolution(executionContext.Code.Trim(), executionContext.TimeLimit * 2, test.Input, index);
 
                 var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
 
@@ -135,11 +134,9 @@ getSandboxFunction(code)();
             return testResults;
         }
 
-        protected string PreprocessJsSolution(string template, string code, string input, int index)
+        protected string PreprocessJsSolution(string code, int timeLimit, string input, int index)
         {
-            return template
-                    .Replace(this.argumentsPlaceholderName, input.Trim())
-                    .Replace(this.testIndexPlaceholder, index.ToString());
+            return this.GetJsCodeTemplate(code, timeLimit, input.Trim(), index);
         }
     }
 }

@@ -136,18 +136,20 @@ chai.use(sinonChai);
 const _ = require(""" + this.UnderscoreModulePath + @""");
 ";
 
-        protected override string JsCodeTemplate => this.JsCodeRequiredModules + @"
+        protected override string GetJsCodeTemplate(string userCode, int timeLimit, string arguments, int index)
+		{
+			return this.JsCodeRequiredModules + @"
 function getSandboxFunction(codeToExecute) {
     const code = `
 		const result = (function() {
 			return (${codeToExecute}.bind({}));
 		}).call({})();
 
-		it('Test # " + this.testIndexPlaceholder + @"', () => {
-" + this.argumentsPlaceholderName + @"
+		it('Test # " + index + @"', () => {
+" + arguments + @"
 		});
     `;
-    const timeout = " + this.timeLimitPlaceholderName + @";
+    const timeout = " + timeLimit + @";
 
     return function() {
         const sandbox = {
@@ -161,8 +163,9 @@ function getSandboxFunction(codeToExecute) {
     }
 };
 
-const code = " + this.userCodePlaceholderName + @"
+const code = " + userCode + @"
 getSandboxFunction(code)();
 ";
+		}
     }
 }

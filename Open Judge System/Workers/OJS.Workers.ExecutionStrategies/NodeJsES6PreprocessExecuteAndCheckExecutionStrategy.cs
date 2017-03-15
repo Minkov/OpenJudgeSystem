@@ -13,15 +13,8 @@
 
     public class NodeJsES6PreprocessExecuteAndCheckExecutionStrategy : ExecutionStrategy
     {
-        protected static readonly Random Rand = new Random();
-
-        protected readonly string userCodePlaceholderName = $"#userCodePlaceholder-{Rand.Next()}#";
-
-        protected readonly string argumentsPlaceholderName = $"#argsPlaceholder-{Rand.Next()}#";
-
-        protected readonly string timeLimitPlaceholderName = $"#timeLimitPlaceholder-{Rand.Next()}#";
-
         private readonly string nodeJsExecutablePath;
+
         private readonly string vm2ModulePath;
 
         public NodeJsES6PreprocessExecuteAndCheckExecutionStrategy(string nodeJsExecutablePath, string vm2ModulePath)
@@ -61,14 +54,16 @@
 		protected virtual string JsCodeRequiredModules => @"
 const { VM } = require(""" + this.Vm2ModulePath + @""");
 ";
-        protected virtual string JsCodeTemplate => this.JsCodeRequiredModules + @"
+
+        protected virtual string GetJsCodeTemplate(string userCode, int timeLimit, string arguments) {
+			return this.JsCodeRequiredModules + @"
 function getSandboxFunction(codeToExecute) {
     const code = `
 		(function() {
 			return (${codeToExecute}.bind({}));
 		}).call({})(args);
     `;
-    const timeout = " + this.timeLimitPlaceholderName + @";
+    const timeout = " + timeLimit + @";
 
     return function(args) {
 		const result = [];
@@ -90,14 +85,15 @@ function getSandboxFunction(codeToExecute) {
     }
 };
 
-const code = " + this.userCodePlaceholderName + @"
+const code = " + userCode + @"
 
 const func = getSandboxFunction(code);
 
-const args = [" + this.argumentsPlaceholderName + @"];
+const args = [" + arguments + @"];
 const result = func(args);
 result.forEach(line => console.log(...line));
 ";
+		}
 
         public override ExecutionResult Execute(ExecutionContext executionContext)
         {
@@ -122,13 +118,9 @@ result.forEach(line => console.log(...line));
         {
             var testResults = new List<TestResult>();
 
-            var solutionCodeTemplate =
-                    this.PreprocessJsSubmission(this.JsCodeTemplate, executionContext.Code.Trim(';'), executionContext.TimeLimit * 2);
-
             foreach (var test in executionContext.Tests)
             {
-                var codeToExecute =
-                        this.PreprocessJsSolution(solutionCodeTemplate, executionContext.Code.Trim(), test.Input);
+                var codeToExecute = this.PreprocessJsSolution(executionContext.Code.Trim(';'), executionContext.TimeLimit * 2, test.Input);
                 var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
 
                 var processExecutionResult = executor.Execute(
@@ -153,7 +145,7 @@ result.forEach(line => console.log(...line));
             return null;
         }
 
-        private string PreprocessJsSolution(string template, string code, string input)
+        private string PreprocessJsSolution(string code, int timeLimit, string input)
         {
             var fixedInput = input.Trim()
                     .Replace(@"\", @"\\")
@@ -167,17 +159,7 @@ result.forEach(line => console.log(...line));
 
             var args = string.Join(", ", argsString);
 
-            return template
-                    .Replace(this.argumentsPlaceholderName, args);
-        }
-
-        protected string PreprocessJsSubmission(string template, string code, int timeLimit)
-        {
-            var processedCode = template
-                .Replace(this.userCodePlaceholderName, code)
-                .Replace(this.timeLimitPlaceholderName, timeLimit.ToString());
-
-            return processedCode;
+			return this.GetJsCodeTemplate(code, timeLimit, args);
         }
 
         protected string FixPath(string path)

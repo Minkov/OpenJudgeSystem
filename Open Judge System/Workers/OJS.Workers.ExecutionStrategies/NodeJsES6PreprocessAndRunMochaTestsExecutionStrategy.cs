@@ -37,22 +37,9 @@
             this.chaiModulePath = this.FixPath(new FileInfo(chaiModulePath).FullName);
         }
 
-        protected string MochaModulePath
-        {
-            get
-            {
-                return this.mochaModulePath;
-            }
-        }
+        protected string MochaModulePath => this.mochaModulePath;
 
-        protected string ChaiModulePath
-        {
-            get
-            {
-                return this.chaiModulePath;
-            }
-        }
-
+        protected string ChaiModulePath => this.chaiModulePath;
 
         protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @"
 const chai = require(""" + this.ChaiModulePath + @"""),

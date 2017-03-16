@@ -35,21 +35,9 @@
             this.vm2ModulePath = this.FixPath(new FileInfo(vm2ModulePath).FullName);
         }
 
-        protected string NodeJsExecutablePath
-        {
-            get
-            {
-                return this.nodeJsExecutablePath;
-            }
-        }
+        protected string NodeJsExecutablePath => this.nodeJsExecutablePath;
 
-        protected string Vm2ModulePath
-        {
-            get
-            {
-                return this.vm2ModulePath;
-            }
-        }
+        protected string Vm2ModulePath => this.vm2ModulePath;
 
         protected virtual string JsCodeRequiredModules => @"
 const { VM } = require(""" + this.Vm2ModulePath + @""");

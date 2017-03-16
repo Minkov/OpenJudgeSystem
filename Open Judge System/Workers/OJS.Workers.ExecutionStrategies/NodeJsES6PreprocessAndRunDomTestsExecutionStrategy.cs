@@ -73,53 +73,17 @@
             this.underscoreModulePath = this.FixPath(new FileInfo(underscoreModulePath).FullName);
         }
 
-        protected string JsDomModulePath
-        {
-            get
-            {
-                return this.jsDomModulePath;
-            }
-        }
+        protected string JsDomModulePath => this.jsDomModulePath;
 
-        protected string JQueryModulePath
-        {
-            get
-            {
-                return this.jQueryModulePath;
-            }
-        }
+        protected string JQueryModulePath => this.jQueryModulePath;
 
-        protected string HandlebarsModulePath
-        {
-            get
-            {
-                return this.handlebarsModulePath;
-            }
-        }
+        protected string HandlebarsModulePath => this.handlebarsModulePath;
 
-        protected string SinonModulePath
-        {
-            get
-            {
-                return this.sinonModulePath;
-            }
-        }
+        protected string SinonModulePath => this.sinonModulePath;
 
-        protected string SinonChaiModulePath
-        {
-            get
-            {
-                return this.sinonChaiModulePath;
-            }
-        }
+        protected string SinonChaiModulePath => this.sinonChaiModulePath;
 
-        protected string UnderscoreModulePath
-        {
-            get
-            {
-                return this.underscoreModulePath;
-            }
-        }
+        protected string UnderscoreModulePath => this.underscoreModulePath;
 
         protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @"
 const { jsdom } = require(""" + this.JsDomModulePath + @"""),

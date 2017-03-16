@@ -55,25 +55,32 @@
 const { VM } = require(""" + this.Vm2ModulePath + @""");
 ";
 
-        protected virtual string GetJsCodeTemplate(string userCode, int timeLimit, string arguments) {
-            return this.JsCodeRequiredModules + @"
-function getSandboxFunction(codeToExecute) {
-    const code = `
-        (function() {
-            return (${codeToExecute}.bind({}));
-        }).call({})(args);
-    `;
-    const timeout = " + timeLimit + @";
-
-    return function(args) {
-        const result = [];
-        const sandbox = {
+        protected virtual string JsSandboxItems => @"
             console: {
                 log(...msgs) {
                     result.push(msgs);
-                }
-            },
-            args
+                },
+                args: test
+            }
+";
+
+        protected virtual string JsSolveFunctionUsage => "solve(args);";
+
+        protected virtual string GetJsCodeTemplate(string userCode, int timeLimit, string arguments) {
+            return this.JsCodeRequiredModules + @"
+function getSandboxFunction(codeToExecute, test) {
+    const code = `
+        const solve = (function() {
+            return (${codeToExecute}.bind({}));
+        }).call({});
+" + this.JsSolveFunctionUsage + @"
+    `;
+    const timeout = " + timeLimit + @";
+
+    return function() {
+        const result = [];
+        const sandbox = {
+" + this.JsSandboxItems + @"
         };
 
         const vm = new VM({ timeout, sandbox });
@@ -86,11 +93,10 @@ function getSandboxFunction(codeToExecute) {
 };
 
 const code = '" + userCode + @"';
+const args = " + arguments + @";
+const func = getSandboxFunction(code, args);
 
-const func = getSandboxFunction(code);
-
-const args = [" + arguments + @"];
-const result = func(args);
+const result = func();
 result.forEach(line => console.log(...line));
 ";
         }
@@ -147,7 +153,7 @@ result.forEach(line => console.log(...line));
 
         private string PreprocessJsSolution(string code, int timeLimit, string input)
         {
-            code = this.EscapeSubmission(code);
+            code = this.EscapeJsString(code.Trim().Trim(';'));
 
             input = input.Trim()
                 .Replace("\\", "\\\\")
@@ -155,17 +161,15 @@ result.forEach(line => console.log(...line));
 
             char[] splitters = { '\n', '\r' };
 
-            var argsString = input.Split(splitters, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(arg => $"'{arg}'");
-
-            var args = string.Join(", ", argsString);
+            var argsString = input.Split(splitters, StringSplitOptions.RemoveEmptyEntries);
+            var args = "['" + string.Join("', '", argsString) + "']";
 
             return this.GetJsCodeTemplate(code, timeLimit, args);
         }
 
-        protected string EscapeSubmission(string code)
+        protected string EscapeJsString(string code)
         {
-            return code.Trim().Trim(';')
+            return code
                 .Replace("\\", "\\\\")
                 .Replace("'", "\\'")
                 .Replace("\"", "\\\"")

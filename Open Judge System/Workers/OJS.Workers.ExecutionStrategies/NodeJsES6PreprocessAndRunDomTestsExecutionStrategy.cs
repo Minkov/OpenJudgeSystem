@@ -136,34 +136,9 @@ chai.use(sinonChai);
 const _ = require(""" + this.UnderscoreModulePath + @""");
 ";
 
-        protected override string GetJsCodeTemplate(string userCode, int timeLimit, string arguments)
-        {
-            return this.JsCodeRequiredModules + @"
-function getSandboxFunction(codeToExecute) {
-    const code = `
-        const result = (function() {
-            return (${codeToExecute}.bind({}));
-        }).call({})();
-
-" + arguments + @"
-    `;
-    const timeout = " + timeLimit + @";
-
-    return function() {
-        const sandbox = {
-            it, expect,
-            document, window, $,
-            sinon, handlebars, _
-        };
-
-        const vm = new VM({ timeout, sandbox });
-        const returnValue = vm.run(code);
-    }
-};
-
-const code = '" + userCode + @"'
-getSandboxFunction(code)();
+        protected override string JsSandboxItems => base.JsSandboxItems + @",
+document, window, $,
+sinon, handlebars, _
 ";
-        }
     }
 }

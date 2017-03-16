@@ -59,33 +59,13 @@ const chai = require(""" + this.ChaiModulePath + @"""),
     { expect } = chai;
 ";
 
-        protected override string GetJsCodeTemplate(string userCode, int timeLimit, string arguments)
-        {
-            return this.JsCodeRequiredModules + @"
-function getSandboxFunction(codeToExecute) {
-    const code = `
-        const result = (function() {
-            return (${codeToExecute}.bind({}));
-        }).call({})();
+        protected override string JsSandboxItems => @"it, expect";
 
-" + arguments + @"
-    `;
-    const timeout = " + timeLimit + @";
-
-    return function() {
-        const sandbox = {
-            it, expect
-        };
-
-        const vm = new VM({ timeout, sandbox });
-        const returnValue = vm.run(code);
-    }
-};
-
-const code = '" + userCode + @"'
-getSandboxFunction(code)();
+        protected override string JsSolveFunctionUsage => @"
+const result = solve();
+${test};
+(function(){})();
 ";
-        }
 
         protected override List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker)
         {
@@ -98,7 +78,7 @@ it('Test', () => {
 });
 ");
 
-            var tests = string.Join("", testStrings);
+            var tests = "'" + this.EscapeJsString(string.Join("", testStrings)) + "'";
 
             var codeToExecute = this.PreprocessJsSolution(executionContext.Code, executionContext.TimeLimit * 2, tests);
 
@@ -133,7 +113,7 @@ it('Test', () => {
 
         protected string PreprocessJsSolution(string code, int timeLimit, string input)
         {
-            code = this.EscapeSubmission(code);
+            code = this.EscapeJsString(code.Trim().Trim(';'));
 
             return this.GetJsCodeTemplate(code, timeLimit, input.Trim());
         }

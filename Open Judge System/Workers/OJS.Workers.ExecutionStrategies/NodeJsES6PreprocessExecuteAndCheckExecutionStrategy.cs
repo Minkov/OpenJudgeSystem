@@ -36,41 +36,41 @@
         }
 
         protected string NodeJsExecutablePath
-		{
-			get
-			{
-				return this.nodeJsExecutablePath;
-			}
-		}
+        {
+            get
+            {
+                return this.nodeJsExecutablePath;
+            }
+        }
 
         protected string Vm2ModulePath
-		{
-			get
-			{
-				return this.vm2ModulePath;
-			}
-		}
+        {
+            get
+            {
+                return this.vm2ModulePath;
+            }
+        }
 
-		protected virtual string JsCodeRequiredModules => @"
+        protected virtual string JsCodeRequiredModules => @"
 const { VM } = require(""" + this.Vm2ModulePath + @""");
 ";
 
         protected virtual string GetJsCodeTemplate(string userCode, int timeLimit, string arguments) {
-			return this.JsCodeRequiredModules + @"
+            return this.JsCodeRequiredModules + @"
 function getSandboxFunction(codeToExecute) {
     const code = `
-		(function() {
-			return (${codeToExecute}.bind({}));
-		}).call({})(args);
+        (function() {
+            return (${codeToExecute}.bind({}));
+        }).call({})(args);
     `;
     const timeout = " + timeLimit + @";
 
     return function(args) {
-		const result = [];
+        const result = [];
         const sandbox = {
             console: {
                 log(...msgs) {
-					result.push(msgs);
+                    result.push(msgs);
                 }
             },
             args
@@ -93,7 +93,7 @@ const args = [" + arguments + @"];
 const result = func(args);
 result.forEach(line => console.log(...line));
 ";
-		}
+        }
 
         public override ExecutionResult Execute(ExecutionContext executionContext)
         {
@@ -159,7 +159,7 @@ result.forEach(line => console.log(...line));
 
             var args = string.Join(", ", argsString);
 
-			return this.GetJsCodeTemplate(code, timeLimit, args);
+            return this.GetJsCodeTemplate(code, timeLimit, args);
         }
 
         protected string FixPath(string path)

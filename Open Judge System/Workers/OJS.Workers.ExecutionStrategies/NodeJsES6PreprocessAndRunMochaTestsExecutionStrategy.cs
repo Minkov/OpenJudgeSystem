@@ -7,19 +7,19 @@
 
     using Common;
 
-	using Newtonsoft.Json;
-	using Newtonsoft.Json.Linq;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
 
     using OJS.Common.Extensions;
 
     public class NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy : NodeJsES6PreprocessExecuteAndCheckExecutionStrategy
     {
-		private readonly string mochaModulePath;
+        private readonly string mochaModulePath;
 
-		private readonly string chaiModulePath;
+        private readonly string chaiModulePath;
 
         public NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy(string nodeJsExecutablePath, string vm2ModulePath, string mochaModulePath, string chaiModulePath)
-			: base(nodeJsExecutablePath, vm2ModulePath)
+            : base(nodeJsExecutablePath, vm2ModulePath)
         {
             if (!File.Exists(mochaModulePath))
             {
@@ -38,35 +38,35 @@
         }
 
         protected string MochaModulePath
-		{
-			get
-			{
-				return this.mochaModulePath;
-			}
-		}
+        {
+            get
+            {
+                return this.mochaModulePath;
+            }
+        }
 
         protected string ChaiModulePath
-		{
-			get
-			{
-				return this.chaiModulePath;
-			}
-		}
+        {
+            get
+            {
+                return this.chaiModulePath;
+            }
+        }
 
 
-		protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @"
+        protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @"
 const chai = require(""" + this.ChaiModulePath + @"""),
-	{ expect } = chai;
+    { expect } = chai;
 ";
 
         protected override string GetJsCodeTemplate(string userCode, int timeLimit, string arguments)
-		{
-			return this.JsCodeRequiredModules + @"
+        {
+            return this.JsCodeRequiredModules + @"
 function getSandboxFunction(codeToExecute) {
     const code = `
-		const result = (function() {
-			return (${codeToExecute}.bind({}));
-		}).call({})();
+        const result = (function() {
+            return (${codeToExecute}.bind({}));
+        }).call({})();
 
 " + arguments + @"
     `;
@@ -74,7 +74,7 @@ function getSandboxFunction(codeToExecute) {
 
     return function() {
         const sandbox = {
-			it, expect
+            it, expect
         };
 
         const vm = new VM({ timeout, sandbox });
@@ -85,39 +85,39 @@ function getSandboxFunction(codeToExecute) {
 const code = " + userCode + @"
 getSandboxFunction(code)();
 ";
-		}
+        }
 
         protected override List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker)
         {
             var testResults = new List<TestResult>();
 
-			var testStrings = executionContext.Tests
-				.Select(test => @"
+            var testStrings = executionContext.Tests
+                .Select(test => @"
 it('Test', () => {
 " + test.Input + @"
 });
 ");
 
-			var tests = string.Join("", testStrings);
+            var tests = string.Join("", testStrings);
 
-			var codeToExecute = this.PreprocessJsSolution(executionContext.Code.Trim(';'), executionContext.TimeLimit * 2, tests);
+            var codeToExecute = this.PreprocessJsSolution(executionContext.Code.Trim(';'), executionContext.TimeLimit * 2, tests);
 
-			var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
+            var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
 
-			var processExecutionResult = executor.Execute(
-				this.NodeJsExecutablePath,
-				string.Empty,
-				executionContext.TimeLimit,
-				executionContext.MemoryLimit,
-				new string[] { this.MochaModulePath, this.FixPath(pathToSolutionFile), "-R", "json" });
+            var processExecutionResult = executor.Execute(
+                this.NodeJsExecutablePath,
+                string.Empty,
+                executionContext.TimeLimit,
+                executionContext.MemoryLimit,
+                new string[] { this.MochaModulePath, this.FixPath(pathToSolutionFile), "-R", "json" });
 
-			var testJsonResults = JsonConvert.DeserializeObject<JObject>(processExecutionResult.ReceivedOutput)["tests"];
+            var testJsonResults = JsonConvert.DeserializeObject<JObject>(processExecutionResult.ReceivedOutput)["tests"];
 
-			var testsList = executionContext.Tests.ToList();
+            var testsList = executionContext.Tests.ToList();
 
-			for (int i = 0; i < testsList.Count; ++i)
-			{
-				var test = testsList[i];
+            for (int i = 0; i < testsList.Count; ++i)
+            {
+                var test = testsList[i];
 
                 var receivedOutput = testJsonResults[i]["err"]["message"] ?? "yes";
 
@@ -125,8 +125,8 @@ it('Test', () => {
                 testResults.Add(testResult);
             }
 
-			// Clean up the files
-			File.Delete(pathToSolutionFile);
+            // Clean up the files
+            File.Delete(pathToSolutionFile);
 
             return testResults;
         }

@@ -61,12 +61,6 @@ const chai = require(""" + this.ChaiModulePath + @"""),
 
         protected override string JsSandboxItems => @"it, expect";
 
-        protected override string JsSolveFunctionUsage => @"
-const result = solve();
-${test};
-(function(){})();
-";
-
         protected override List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker)
         {
             var testResults = new List<TestResult>();
@@ -78,7 +72,10 @@ it('Test', () => {
 });
 ");
 
-            var tests = "'" + this.EscapeJsString(string.Join("", testStrings)) + "'";
+            var tests = @"const result = solve();
+"+ this.EscapeJsString(string.Join("", testStrings)) + @"
+(function(){})();
+";
 
             var codeToExecute = this.PreprocessJsSolution(executionContext.Code, executionContext.TimeLimit * 2, tests);
 

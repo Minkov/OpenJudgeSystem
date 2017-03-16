@@ -59,12 +59,10 @@ const { VM } = require(""" + this.Vm2ModulePath + @""");
             console: {
                 log(...msgs) {
                     result.push(msgs);
-                },
-                args: test
+                }
             }
 ";
 
-        protected virtual string JsSolveFunctionUsage => "solve(args);";
 
         protected virtual string GetJsCodeTemplate(string userCode, int timeLimit, string arguments) {
             return this.JsCodeRequiredModules + @"
@@ -73,7 +71,7 @@ function getSandboxFunction(codeToExecute, test) {
         const solve = (function() {
             return (${codeToExecute}.bind({}));
         }).call({});
-" + this.JsSolveFunctionUsage + @"
+        ${test}
     `;
     const timeout = " + timeLimit + @";
 
@@ -93,7 +91,7 @@ function getSandboxFunction(codeToExecute, test) {
 };
 
 const code = '" + userCode + @"';
-const args = " + arguments + @";
+const args = '" + arguments + @"';
 const func = getSandboxFunction(code, args);
 
 const result = func();
@@ -139,7 +137,6 @@ result.forEach(line => console.log(...line));
                 testResults.Add(testResult);
 
                 // Clean up
-
                 File.Delete(pathToSolutionFile);
             }
 
@@ -162,7 +159,7 @@ result.forEach(line => console.log(...line));
             char[] splitters = { '\n', '\r' };
 
             var argsString = input.Split(splitters, StringSplitOptions.RemoveEmptyEntries);
-            var args = "['" + string.Join("', '", argsString) + "']";
+            var args = this.EscapeJsString("solve(['" + string.Join("', '", argsString) + "']);");
 
             return this.GetJsCodeTemplate(code, timeLimit, args);
         }

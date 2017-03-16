@@ -85,7 +85,7 @@ function getSandboxFunction(codeToExecute) {
     }
 };
 
-const code = " + userCode + @"
+const code = '" + userCode + @"';
 
 const func = getSandboxFunction(code);
 
@@ -120,7 +120,7 @@ result.forEach(line => console.log(...line));
 
             foreach (var test in executionContext.Tests)
             {
-                var codeToExecute = this.PreprocessJsSolution(executionContext.Code.Trim(';'), executionContext.TimeLimit * 2, test.Input);
+                var codeToExecute = this.PreprocessJsSolution(executionContext.Code, executionContext.TimeLimit * 2, test.Input);
                 var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
 
                 var processExecutionResult = executor.Execute(
@@ -147,15 +147,20 @@ result.forEach(line => console.log(...line));
 
         private string PreprocessJsSolution(string code, int timeLimit, string input)
         {
-            var fixedInput = input.Trim()
-                    .Replace(@"\", @"\\")
-                    .Replace(@"""", @"\""")
-                    .Replace("'", "\\'");
+            code = code.Trim().Trim(';')
+                .Replace("\\", "\\\\")
+                .Replace("'", "\\'")
+                .Replace("\r", "")
+                .Replace("\n", "\\\n");
+
+            input = input.Trim()
+                .Replace("\\", "\\\\")
+                .Replace("'", "\\'");
 
             char[] splitters = { '\n', '\r' };
 
-            var argsString = fixedInput.Split(splitters, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(arg => $"\"{arg}\"");
+            var argsString = input.Split(splitters, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(arg => $"'{arg}'");
 
             var args = string.Join(", ", argsString);
 

@@ -161,7 +161,7 @@ function getSandboxFunction(codeToExecute) {
     }
 };
 
-const code = " + userCode + @"
+const code = '" + userCode + @"'
 getSandboxFunction(code)();
 ";
         }

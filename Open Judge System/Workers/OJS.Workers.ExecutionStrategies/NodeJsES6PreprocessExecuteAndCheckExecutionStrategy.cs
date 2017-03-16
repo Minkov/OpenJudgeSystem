@@ -147,11 +147,7 @@ result.forEach(line => console.log(...line));
 
         private string PreprocessJsSolution(string code, int timeLimit, string input)
         {
-            code = code.Trim().Trim(';')
-                .Replace("\\", "\\\\")
-                .Replace("'", "\\'")
-                .Replace("\r", "")
-                .Replace("\n", "\\\n");
+            code = this.EscapeSubmission(code);
 
             input = input.Trim()
                 .Replace("\\", "\\\\")
@@ -165,6 +161,16 @@ result.forEach(line => console.log(...line));
             var args = string.Join(", ", argsString);
 
             return this.GetJsCodeTemplate(code, timeLimit, args);
+        }
+
+        protected string EscapeSubmission(string code)
+        {
+            return code.Trim().Trim(';')
+                .Replace("\\", "\\\\")
+                .Replace("'", "\\'")
+                .Replace("\"", "\\\"")
+                .Replace("\r", "")
+                .Replace("\n", "\\\n");
         }
 
         protected string FixPath(string path)

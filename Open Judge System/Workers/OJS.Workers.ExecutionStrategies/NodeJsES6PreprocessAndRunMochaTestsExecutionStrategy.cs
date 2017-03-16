@@ -82,7 +82,7 @@ function getSandboxFunction(codeToExecute) {
     }
 };
 
-const code = " + userCode + @"
+const code = '" + userCode + @"'
 getSandboxFunction(code)();
 ";
         }
@@ -100,7 +100,7 @@ it('Test', () => {
 
             var tests = string.Join("", testStrings);
 
-            var codeToExecute = this.PreprocessJsSolution(executionContext.Code.Trim(';'), executionContext.TimeLimit * 2, tests);
+            var codeToExecute = this.PreprocessJsSolution(executionContext.Code, executionContext.TimeLimit * 2, tests);
 
             var pathToSolutionFile = FileHelpers.SaveStringToTempFile(codeToExecute);
 
@@ -133,6 +133,8 @@ it('Test', () => {
 
         protected string PreprocessJsSolution(string code, int timeLimit, string input)
         {
+            code = this.EscapeSubmission(code);
+
             return this.GetJsCodeTemplate(code, timeLimit, input.Trim());
         }
     }

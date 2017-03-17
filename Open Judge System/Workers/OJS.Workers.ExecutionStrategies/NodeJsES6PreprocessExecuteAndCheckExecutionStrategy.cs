@@ -140,9 +140,7 @@ result.forEach(line => console.log(...line));
         {
             code = this.EscapeJsString(code.Trim().Trim(';'));
 
-            input = input.Trim()
-                .Replace("\\", "\\\\")
-                .Replace("'", "\\'");
+            input = this.EscapeJsString(input.Trim());
 
             char[] splitters = { '\n', '\r' };
 
@@ -158,8 +156,8 @@ result.forEach(line => console.log(...line));
                 .Replace("\\", "\\\\")
                 .Replace("'", "\\'")
                 .Replace("\"", "\\\"")
-                .Replace("\r", "")
-                .Replace("\n", "\\\n");
+                .Replace("\r", "\\r")
+                .Replace("\n", "\\n");
         }
 
         protected string FixPath(string path)

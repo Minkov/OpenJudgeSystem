@@ -59,10 +59,9 @@ it('Test', () => {
 });
 ");
 
-            var tests = @"const result = solve();
-"+ this.EscapeJsString(string.Join("", testStrings)) + @"
-(function(){})();
-";
+            var tests = this.EscapeJsString(@"const result = solve();
+"+ string.Join("", testStrings) + @"
+(function(){})();");
 
             var codeToExecute = this.PreprocessJsSolution(executionContext.Code, executionContext.TimeLimit * 2, tests);
 

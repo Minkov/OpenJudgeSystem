@@ -138,16 +138,15 @@ result.forEach(line => console.log(...line));
 
         private string PreprocessJsSolution(string code, int timeLimit, string input)
         {
-            code = this.EscapeJsString(code.Trim().Trim(';'));
-
-            input = this.EscapeJsString(input.Trim());
+            var escapedCode = this.EscapeJsString(code.Trim().Trim(';'));
 
             char[] splitters = { '\n', '\r' };
 
-            var argsString = input.Split(splitters, StringSplitOptions.RemoveEmptyEntries);
-            var args = this.EscapeJsString("solve(['" + string.Join("', '", argsString) + "']);");
+            var argsString = input.Split(splitters, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => "'" + this.EscapeJsString(x) + "'");
+            var args = this.EscapeJsString("solve([" + string.Join(", ", argsString) + "]);");
 
-            return this.GetJsCodeTemplate(code, timeLimit, args);
+            return this.GetJsCodeTemplate(escapedCode, timeLimit, args);
         }
 
         protected string EscapeJsString(string code)

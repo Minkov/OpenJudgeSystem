@@ -59,9 +59,9 @@ it('Test', () => {
 });
 ");
 
-            var tests = this.EscapeJsString(@"const result = solve();
-"+ string.Join("", testStrings) + @"
-(function(){})();");
+            var tests = @"const result = solve();
+"+ string.Join(string.Empty, testStrings) + @"
+(function(){})();";
 
             var codeToExecute = this.PreprocessJsSolution(executionContext.Code, executionContext.TimeLimit * 2, tests);
 
@@ -96,9 +96,10 @@ it('Test', () => {
 
         protected string PreprocessJsSolution(string code, int timeLimit, string input)
         {
-            code = this.EscapeJsString(code.Trim().Trim(';'));
+            var escapedCode = this.EscapeJsString(code.Trim().Trim(';'));
+            var escapedInput = this.EscapeJsString(input);
 
-            return this.GetJsCodeTemplate(code, timeLimit, input.Trim());
+            return this.GetJsCodeTemplate(escapedCode, timeLimit, escapedInput);
         }
     }
 }

@@ -60,7 +60,7 @@ it('Test', () => {
 ");
 
             var tests = @"const result = solve();
-"+ string.Join(string.Empty, testStrings) + @"
+" + string.Join(string.Empty, testStrings) + @"
 (function(){})();";
 
             var codeToExecute = this.PreprocessJsSolution(executionContext.Code, executionContext.TimeLimit * 2, tests);

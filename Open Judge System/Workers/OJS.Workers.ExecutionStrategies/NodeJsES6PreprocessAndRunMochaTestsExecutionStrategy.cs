@@ -41,6 +41,8 @@
 
         protected string ChaiModulePath => this.chaiModulePath;
 
+        protected virtual string JsResultObjectName => "result";
+
         protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @"
 const chai = require(""" + this.ChaiModulePath + @"""),
     { expect } = chai;
@@ -59,7 +61,7 @@ it('Test', () => {
 });
 ");
 
-            var tests = @"const result = solve();
+            var tests = @"const " + this.JsResultObjectName + @" = " + this.JsSolveFunctionName + @"();
 " + string.Join(string.Empty, testStrings) + @"
 (function(){})();";
 

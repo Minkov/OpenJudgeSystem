@@ -51,6 +51,8 @@ const { VM } = require(""" + this.Vm2ModulePath + @""");
             }
 ";
 
+        protected virtual string JsSolveFunctionName => "solve";
+
         public override ExecutionResult Execute(ExecutionContext executionContext)
         {
             var result = new ExecutionResult();
@@ -104,7 +106,7 @@ const { VM } = require(""" + this.Vm2ModulePath + @""");
             return this.JsCodeRequiredModules + @"
 function getSandboxFunction(codeToExecute, test) {
     const code = `
-        const solve = (function() {
+        const " + this.JsSolveFunctionName + @" = (function() {
             return (${codeToExecute}.bind({}));
         }).call({});
         ${test}
@@ -159,7 +161,7 @@ result.forEach(line => console.log(...line));
 
             var argsString = input.Split(splitters, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => "'" + this.EscapeJsString(x) + "'");
-            var args = this.EscapeJsString("solve([" + string.Join(", ", argsString) + "]);");
+            var args = this.EscapeJsString(this.JsSolveFunctionName + "([" + string.Join(", ", argsString) + "]);");
 
             return this.GetJsCodeTemplate(escapedCode, timeLimit, args);
         }

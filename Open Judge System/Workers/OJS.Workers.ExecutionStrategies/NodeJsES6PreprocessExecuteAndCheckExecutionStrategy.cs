@@ -121,15 +121,15 @@ function getSandboxFunction(codeToExecute, test) {
 
         const vm = new VM({ timeout, sandbox });
         const returnValue = vm.run(code);
-        if(typeof returnValue !== 'undefined') {
+        if(typeof returnValue !== ""undefined"") {
             result.push([returnValue]);
         }
         return result;
     }
 };
 
-const code = '" + userCode + @"';
-const args = '" + arguments + @"';
+const code = """ + userCode + @""";
+const args = """ + arguments + @""";
 const func = getSandboxFunction(code, args);
 
 const result = func();
@@ -160,7 +160,7 @@ result.forEach(line => console.log(...line));
             char[] splitters = { '\n', '\r' };
 
             var argsString = input.Split(splitters, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => "'" + this.EscapeJsString(x) + "'");
+                .Select(x => "\"" + this.EscapeJsString(x) + "\"");
             var args = this.EscapeJsString(this.JsSolveFunctionName + "([" + string.Join(", ", argsString) + "]);");
 
             return this.GetJsCodeTemplate(escapedCode, timeLimit, args);

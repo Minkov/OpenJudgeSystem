@@ -56,7 +56,7 @@ const chai = require(""" + this.ChaiModulePath + @"""),
 
             var testStrings = executionContext.Tests
                 .Select(test => @"
-it('Test', () => {
+it(""Test"", () => {
 " + test.Input + @"
 });
 ");

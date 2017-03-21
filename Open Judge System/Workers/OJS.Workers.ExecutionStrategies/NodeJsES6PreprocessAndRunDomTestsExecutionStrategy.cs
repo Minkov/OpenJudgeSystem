@@ -87,7 +87,7 @@
 
         protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @"
 const { jsdom } = require(""" + this.JsDomModulePath + @"""),
-    document = jsdom('<html></html>', {}),
+    document = jsdom(""<html></html>"", {}),
     window = document.defaultView;
 const $ = require(""" + this.JQueryModulePath + @""")(window);
 

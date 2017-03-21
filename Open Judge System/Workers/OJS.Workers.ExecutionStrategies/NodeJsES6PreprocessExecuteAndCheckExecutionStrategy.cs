@@ -51,42 +51,6 @@ const { VM } = require(""" + this.Vm2ModulePath + @""");
             }
 ";
 
-
-        protected virtual string GetJsCodeTemplate(string userCode, int timeLimit, string arguments) {
-            return this.JsCodeRequiredModules + @"
-function getSandboxFunction(codeToExecute, test) {
-    const code = `
-        const solve = (function() {
-            return (${codeToExecute}.bind({}));
-        }).call({});
-        ${test}
-    `;
-    const timeout = " + timeLimit + @";
-
-    return function() {
-        const result = [];
-        const sandbox = {
-" + this.JsSandboxItems + @"
-        };
-
-        const vm = new VM({ timeout, sandbox });
-        const returnValue = vm.run(code);
-        if(typeof returnValue !== 'undefined') {
-            result.push([returnValue]);
-        }
-        return result;
-    }
-};
-
-const code = '" + userCode + @"';
-const args = '" + arguments + @"';
-const func = getSandboxFunction(code, args);
-
-const result = func();
-result.forEach(line => console.log(...line));
-";
-        }
-
         public override ExecutionResult Execute(ExecutionContext executionContext)
         {
             var result = new ExecutionResult();
@@ -136,17 +100,39 @@ result.forEach(line => console.log(...line));
             return null;
         }
 
-        private string PreprocessJsSolution(string code, int timeLimit, string input)
-        {
-            var escapedCode = this.EscapeJsString(code.Trim().Trim(';'));
+        protected virtual string GetJsCodeTemplate(string userCode, int timeLimit, string arguments) {
+            return this.JsCodeRequiredModules + @"
+function getSandboxFunction(codeToExecute, test) {
+    const code = `
+        const solve = (function() {
+            return (${codeToExecute}.bind({}));
+        }).call({});
+        ${test}
+    `;
+    const timeout = " + timeLimit + @";
 
-            char[] splitters = { '\n', '\r' };
+    return function() {
+        const result = [];
+        const sandbox = {
+" + this.JsSandboxItems + @"
+        };
 
-            var argsString = input.Split(splitters, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => "'" + this.EscapeJsString(x) + "'");
-            var args = this.EscapeJsString("solve([" + string.Join(", ", argsString) + "]);");
+        const vm = new VM({ timeout, sandbox });
+        const returnValue = vm.run(code);
+        if(typeof returnValue !== 'undefined') {
+            result.push([returnValue]);
+        }
+        return result;
+    }
+};
 
-            return this.GetJsCodeTemplate(escapedCode, timeLimit, args);
+const code = '" + userCode + @"';
+const args = '" + arguments + @"';
+const func = getSandboxFunction(code, args);
+
+const result = func();
+result.forEach(line => console.log(...line));
+";
         }
 
         protected string EscapeJsString(string code)
@@ -163,6 +149,19 @@ result.forEach(line => console.log(...line));
         {
             return path.Replace('\\', '/')
                     .Replace(" ", "\\ ");
+        }
+
+        private string PreprocessJsSolution(string code, int timeLimit, string input)
+        {
+            var escapedCode = this.EscapeJsString(code.Trim().Trim(';'));
+
+            char[] splitters = { '\n', '\r' };
+
+            var argsString = input.Split(splitters, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => "'" + this.EscapeJsString(x) + "'");
+            var args = this.EscapeJsString("solve([" + string.Join(", ", argsString) + "]);");
+
+            return this.GetJsCodeTemplate(escapedCode, timeLimit, args);
         }
     }
 }

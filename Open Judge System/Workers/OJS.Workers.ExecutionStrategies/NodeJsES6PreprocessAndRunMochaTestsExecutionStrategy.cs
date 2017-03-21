@@ -50,6 +50,8 @@ const chai = require(""" + this.ChaiModulePath + @"""),
 
         protected override string JsSandboxItems => @"it, beforeEach, expect";
 
+        protected override string JsHiddenItems => "describe, it, before, beforeEach after, afterEach, chai, expect, sinon, sinonChai";
+
         protected override List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker)
         {
             var testResults = new List<TestResult>();

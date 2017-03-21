@@ -104,5 +104,7 @@ const _ = require(""" + this.UnderscoreModulePath + @""");
 document, window, $,
 sinon, handlebars, _
 ";
+
+        protected override string JsHiddenItems => base.JsHiddenItems + ", jsdom, handlebars";
     }
 }

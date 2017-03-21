@@ -51,6 +51,8 @@ const { VM } = require(""" + this.Vm2ModulePath + @""");
             }
 ";
 
+        protected virtual string JsHiddenItems => string.Empty;
+
         protected virtual string JsSolveFunctionName => "solve";
 
         public override ExecutionResult Execute(ExecutionContext executionContext)
@@ -106,7 +108,7 @@ const { VM } = require(""" + this.Vm2ModulePath + @""");
             return this.JsCodeRequiredModules + @"
 function getSandboxFunction(codeToExecute, test) {
     const code = `
-        const " + this.JsSolveFunctionName + @" = (function() {
+        const " + this.JsSolveFunctionName + @" = (function(" + this.JsHiddenItems + @") {
             return (${codeToExecute}.bind({}));
         }).call({});
         ${test}

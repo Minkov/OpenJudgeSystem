@@ -48,7 +48,7 @@ const chai = require(""" + this.ChaiModulePath + @"""),
     { expect } = chai;
 ";
 
-        protected override string JsSandboxItems => @"it, expect";
+        protected override string JsSandboxItems => @"it, beforeEach, expect";
 
         protected override List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker)
         {
@@ -61,7 +61,10 @@ it('Test', () => {
 });
 ");
 
-            var tests = @"const " + this.JsResultObjectName + @" = " + this.JsSolveFunctionName + @"();
+            var tests = @"let " + this.JsResultObjectName + @";
+beforeEach(() => {
+    " + this.JsResultObjectName + @" = " + this.JsSolveFunctionName + @"();
+});
 " + string.Join(string.Empty, testStrings) + @"
 (function(){})();";
 

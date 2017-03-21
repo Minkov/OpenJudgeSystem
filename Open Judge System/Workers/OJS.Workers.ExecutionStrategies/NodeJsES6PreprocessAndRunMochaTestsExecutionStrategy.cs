@@ -76,7 +76,7 @@ chai.use(sinonChai);
 
         protected override string JsSandboxItems => @"it, beforeEach, expect";
 
-        protected override string JsHiddenItems => "describe, it, before, beforeEach after, afterEach, chai, expect, sinon, sinonChai";
+        protected override string JsHiddenItems => "describe, it, before, beforeEach, after, afterEach, chai, expect, sinon, sinonChai";
 
         protected override List<TestResult> ProcessTests(ExecutionContext executionContext, IExecutor executor, IChecker checker)
         {
@@ -116,7 +116,7 @@ beforeEach(() => {
                 var test = testsList[i];
 
                 var receivedOutput = testJsonResults[i]["err"]["message"];
-                if(receivedOutput != null)
+                if (receivedOutput != null)
                 {
                     receivedOutput = "Mocha error: " + receivedOutput;
                 }

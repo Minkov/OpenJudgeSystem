@@ -50,10 +50,10 @@
                     $"Underscore not found in: {underscoreModulePath}", nameof(underscoreModulePath));
             }
 
-            this.jsDomModulePath = this.FixPath(new FileInfo(jsDomModulePath).FullName);
-            this.jQueryModulePath = this.FixPath(new FileInfo(jQueryModulePath).FullName);
-            this.handlebarsModulePath = this.FixPath(new FileInfo(handlebarsModulePath).FullName);
-            this.underscoreModulePath = this.FixPath(new FileInfo(underscoreModulePath).FullName);
+            this.jsDomModulePath = this.FixStringPath(new FileInfo(jsDomModulePath).FullName);
+            this.jQueryModulePath = this.FixStringPath(new FileInfo(jQueryModulePath).FullName);
+            this.handlebarsModulePath = this.FixStringPath(new FileInfo(handlebarsModulePath).FullName);
+            this.underscoreModulePath = this.FixStringPath(new FileInfo(underscoreModulePath).FullName);
         }
 
         protected string JsDomModulePath => this.jsDomModulePath;

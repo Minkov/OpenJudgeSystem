@@ -49,10 +49,10 @@
                     $"SinonChai not found in: {sinonChaiModulePath}", nameof(sinonChaiModulePath));
             }
 
-            this.mochaModulePath = new FileInfo(mochaModulePath).FullName.Replace(" ", "\" \"");
-            this.chaiModulePath = this.FixPath(new FileInfo(chaiModulePath).FullName);
-            this.sinonModulePath = this.FixPath(new FileInfo(sinonModulePath).FullName);
-            this.sinonChaiModulePath = this.FixPath(new FileInfo(sinonChaiModulePath).FullName);
+            this.mochaModulePath = this.FixArgumentPath(new FileInfo(mochaModulePath).FullName);
+            this.chaiModulePath = this.FixStringPath(new FileInfo(chaiModulePath).FullName);
+            this.sinonModulePath = this.FixStringPath(new FileInfo(sinonModulePath).FullName);
+            this.sinonChaiModulePath = this.FixStringPath(new FileInfo(sinonChaiModulePath).FullName);
         }
 
         protected string MochaModulePath => this.mochaModulePath;
@@ -105,7 +105,7 @@ beforeEach(() => {
                 string.Empty,
                 executionContext.TimeLimit,
                 executionContext.MemoryLimit,
-                new string[] { this.MochaModulePath, this.FixPath(pathToSolutionFile), "-R", "json" });
+                new string[] { this.MochaModulePath, this.FixArgumentPath(pathToSolutionFile), "-R", "json" });
 
             var testJsonResults = JsonConvert.DeserializeObject<JObject>(processExecutionResult.ReceivedOutput)["tests"];
 

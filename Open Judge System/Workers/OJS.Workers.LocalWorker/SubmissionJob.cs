@@ -245,7 +245,13 @@
                     executionStrategy = new NodeJsES6PreprocessExecuteAndCheckExecutionStrategy(Settings.NodeJsExecutablePath, Settings.Vm2ModulePath);
                     break;
                 case ExecutionStrategyType.NodeJsES6PreprocessAndRunMochaTests:
-                    executionStrategy = new NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy(Settings.NodeJsExecutablePath, Settings.Vm2ModulePath, Settings.MochaModulePath, Settings.ChaiModulePath);
+                    executionStrategy = new NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy(
+                        Settings.NodeJsExecutablePath,
+                        Settings.Vm2ModulePath,
+                        Settings.MochaModulePath,
+                        Settings.ChaiModulePath,
+                        Settings.SinonModulePath,
+                        Settings.SinonChaiModulePath);
                     break;
                 case ExecutionStrategyType.NodeJsES6PreprocessAndRunDomTests:
                     executionStrategy = new NodeJsES6PreprocessAndRunDomTestsExecutionStrategy(
@@ -253,11 +259,11 @@
                         Settings.Vm2ModulePath,
                         Settings.MochaModulePath,
                         Settings.ChaiModulePath,
+                        Settings.SinonModulePath,
+                        Settings.SinonChaiModulePath,
                         Settings.JsDomModulePath,
                         Settings.JQueryModulePath,
                         Settings.HandlebarsModulePath,
-                        Settings.SinonModulePath,
-                        Settings.SinonChaiModulePath,
                         Settings.UnderscoreModulePath);
                     break;
 
@@ -270,7 +276,13 @@
                     //    Settings.NodeJsExecutablePath,
                     //    Settings.MochaModulePath,
                     //    Settings.ChaiModulePath);
-                    executionStrategy = new NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy(Settings.NodeJsExecutablePath, Settings.Vm2ModulePath, Settings.MochaModulePath, Settings.ChaiModulePath);
+                    executionStrategy = new NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy(
+                        Settings.NodeJsExecutablePath,
+                        Settings.Vm2ModulePath,
+                        Settings.MochaModulePath,
+                        Settings.ChaiModulePath,
+                        Settings.SinonModulePath,
+                        Settings.SinonChaiModulePath);
                     break;
                 case ExecutionStrategyType.IoJsPreprocessExecuteAndRunJsDomUnitTests:
                     executionStrategy = new IoJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy(

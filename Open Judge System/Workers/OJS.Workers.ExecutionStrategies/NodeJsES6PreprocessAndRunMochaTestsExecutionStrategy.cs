@@ -18,7 +18,11 @@
 
         private readonly string chaiModulePath;
 
-        public NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy(string nodeJsExecutablePath, string vm2ModulePath, string mochaModulePath, string chaiModulePath)
+        private readonly string sinonModulePath;
+
+        private readonly string sinonChaiModulePath;
+
+        public NodeJsES6PreprocessAndRunMochaTestsExecutionStrategy(string nodeJsExecutablePath, string vm2ModulePath, string mochaModulePath, string chaiModulePath, string sinonModulePath, string sinonChaiModulePath)
             : base(nodeJsExecutablePath, vm2ModulePath)
         {
             if (!File.Exists(mochaModulePath))
@@ -33,19 +37,41 @@
                     $"Chai not found in: {chaiModulePath}", nameof(chaiModulePath));
             }
 
+            if (!File.Exists(sinonModulePath))
+            {
+                throw new ArgumentException(
+                    $"Sinon not found in: {sinonModulePath}", nameof(sinonModulePath));
+            }
+
+            if (!File.Exists(sinonChaiModulePath))
+            {
+                throw new ArgumentException(
+                    $"SinonChai not found in: {sinonChaiModulePath}", nameof(sinonChaiModulePath));
+            }
+
             this.mochaModulePath = new FileInfo(mochaModulePath).FullName.Replace(" ", "\" \"");
             this.chaiModulePath = this.FixPath(new FileInfo(chaiModulePath).FullName);
+            this.sinonModulePath = this.FixPath(new FileInfo(sinonModulePath).FullName);
+            this.sinonChaiModulePath = this.FixPath(new FileInfo(sinonChaiModulePath).FullName);
         }
 
         protected string MochaModulePath => this.mochaModulePath;
 
         protected string ChaiModulePath => this.chaiModulePath;
 
+        protected string SinonModulePath => this.sinonModulePath;
+
+        protected string SinonChaiModulePath => this.sinonChaiModulePath;
+
         protected virtual string JsResultObjectName => "result";
 
         protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @"
 const chai = require(""" + this.ChaiModulePath + @"""),
     { expect } = chai;
+
+const sinon = require(""" + this.SinonModulePath + @""");
+const sinonChai = require(""" + this.SinonChaiModulePath + @""");
+chai.use(sinonChai);
 ";
 
         protected override string JsSandboxItems => @"it, beforeEach, expect";

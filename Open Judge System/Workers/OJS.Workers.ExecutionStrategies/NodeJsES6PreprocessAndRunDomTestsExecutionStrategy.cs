@@ -11,10 +11,6 @@
 
         private readonly string handlebarsModulePath;
 
-        private readonly string sinonModulePath;
-
-        private readonly string sinonChaiModulePath;
-
         private readonly string underscoreModulePath;
 
         public NodeJsES6PreprocessAndRunDomTestsExecutionStrategy(
@@ -22,13 +18,13 @@
             string vm2ModulePath,
             string mochaModulePath,
             string chaiModulePath,
+            string sinonModulePath,
+            string sinonChaiModulePath,
             string jsDomModulePath,
             string jQueryModulePath,
             string handlebarsModulePath,
-            string sinonModulePath,
-            string sinonChaiModulePath,
             string underscoreModulePath)
-            : base(nodeJsExecutablePath, vm2ModulePath, mochaModulePath, chaiModulePath)
+            : base(nodeJsExecutablePath, vm2ModulePath, mochaModulePath, chaiModulePath, sinonModulePath, sinonChaiModulePath)
         {
             if (!File.Exists(jsDomModulePath))
             {
@@ -48,17 +44,6 @@
                     $"Handlebars not found in: {handlebarsModulePath}", nameof(handlebarsModulePath));
             }
 
-            if (!File.Exists(sinonModulePath))
-            {
-                throw new ArgumentException(
-                    $"Sinon not found in: {sinonModulePath}", nameof(sinonModulePath));
-            }
-
-            if (!File.Exists(sinonChaiModulePath))
-            {
-                throw new ArgumentException(
-                    $"SinonChai not found in: {sinonChaiModulePath}", nameof(sinonChaiModulePath));
-            }
             if (!File.Exists(underscoreModulePath))
             {
                 throw new ArgumentException(
@@ -68,8 +53,6 @@
             this.jsDomModulePath = this.FixPath(new FileInfo(jsDomModulePath).FullName);
             this.jQueryModulePath = this.FixPath(new FileInfo(jQueryModulePath).FullName);
             this.handlebarsModulePath = this.FixPath(new FileInfo(handlebarsModulePath).FullName);
-            this.sinonModulePath = this.FixPath(new FileInfo(sinonModulePath).FullName);
-            this.sinonChaiModulePath = this.FixPath(new FileInfo(sinonChaiModulePath).FullName);
             this.underscoreModulePath = this.FixPath(new FileInfo(underscoreModulePath).FullName);
         }
 
@@ -78,10 +61,6 @@
         protected string JQueryModulePath => this.jQueryModulePath;
 
         protected string HandlebarsModulePath => this.handlebarsModulePath;
-
-        protected string SinonModulePath => this.sinonModulePath;
-
-        protected string SinonChaiModulePath => this.sinonChaiModulePath;
 
         protected string UnderscoreModulePath => this.underscoreModulePath;
 
@@ -92,10 +71,6 @@ const { jsdom } = require(""" + this.JsDomModulePath + @"""),
 const $ = require(""" + this.JQueryModulePath + @""")(window);
 
 const handlebars = require(""" + this.HandlebarsModulePath + @""");
-
-const sinon = require(""" + this.SinonModulePath + @""");
-const sinonChai = require(""" + this.SinonChaiModulePath + @""");
-chai.use(sinonChai);
 
 const _ = require(""" + this.UnderscoreModulePath + @""");
 ";

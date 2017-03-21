@@ -87,7 +87,15 @@ beforeEach(() => {
             {
                 var test = testsList[i];
 
-                var receivedOutput = testJsonResults[i]["err"]["message"] ?? "yes";
+                var receivedOutput = testJsonResults[i]["err"]["message"];
+                if(receivedOutput != null)
+                {
+                    receivedOutput = "Mocha error: " + receivedOutput;
+                }
+                else
+                {
+                    receivedOutput = "yes";
+                }
 
                 var testResult = this.ExecuteAndCheckTest(test, processExecutionResult, checker, receivedOutput.ToString());
                 testResults.Add(testResult);

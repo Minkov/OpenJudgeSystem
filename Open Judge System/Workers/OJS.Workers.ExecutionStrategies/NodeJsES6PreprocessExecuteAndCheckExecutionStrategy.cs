@@ -111,6 +111,7 @@ function getSandboxFunction(codeToExecute, test) {
         const " + this.JsSolveFunctionName + @" = (function(" + this.JsHiddenItems + @") {
             return (${codeToExecute}.bind({}));
         }).call({});
+        /* */
         ${test}
     `;
     const timeout = " + timeLimit + @";

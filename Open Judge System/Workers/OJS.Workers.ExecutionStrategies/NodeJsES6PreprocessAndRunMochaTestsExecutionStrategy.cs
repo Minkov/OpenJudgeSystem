@@ -105,7 +105,7 @@ beforeEach(() => {
                 string.Empty,
                 executionContext.TimeLimit,
                 executionContext.MemoryLimit,
-                new string[] { this.MochaModulePath, this.FixArgumentPath(pathToSolutionFile), "-R", "json" });
+                new string[] { this.MochaModulePath, pathToSolutionFile, "-R", "json" });
 
             var testJsonResults = JsonConvert.DeserializeObject<JObject>(processExecutionResult.ReceivedOutput)["tests"];
 

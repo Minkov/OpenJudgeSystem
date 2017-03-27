@@ -31,7 +31,7 @@
                     $"VM2 lib not found in: {vm2ModulePath}", nameof(vm2ModulePath));
             }
 
-            this.nodeJsExecutablePath = this.FixArgumentPath(new FileInfo(nodeJsExecutablePath).FullName);
+            this.nodeJsExecutablePath = new FileInfo(nodeJsExecutablePath).FullName;
             this.vm2ModulePath = this.FixStringPath(new FileInfo(vm2ModulePath).FullName);
         }
 
@@ -158,7 +158,7 @@ result.forEach(line => console.log(...line));
 
         protected string FixArgumentPath(string path)
         {
-            return path.Replace(" ", "\" \"");
+            return "\"" + path + "\"";
         }
 
         private string PreprocessJsSolution(string code, int timeLimit, string input)
